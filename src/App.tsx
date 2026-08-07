@@ -1,5 +1,6 @@
 import Editor, { type Monaco } from '@monaco-editor/react'
 import {
+  BookOpen,
   Braces,
   Check,
   Copy,
@@ -42,6 +43,15 @@ type Toast = { message: string; tone: 'success' | 'error' } | null
 type ToastTone = Exclude<Toast, null>['tone']
 
 const byteFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
+
+const guideLinks = [
+  { href: '/guides/trailing-comma-in-json/', label: 'Trailing comma' },
+  { href: '/guides/unexpected-token-in-json/', label: 'Unexpected token' },
+  { href: '/guides/single-quotes-in-json/', label: 'Single quotes' },
+  { href: '/guides/unquoted-property-name-in-json/', label: 'Unquoted property name' },
+  { href: '/guides/unclosed-string-in-json/', label: 'Unclosed string' },
+  { href: '/guides/comments-in-json/', label: 'Comments in JSON' },
+]
 
 function App() {
   const [value, setValue] = useState('')
@@ -188,10 +198,17 @@ function App() {
     <main className="app-shell">
       <section className="workspace" aria-label="JSON Error Finder">
         <header className="topbar">
-          <a className="brand" href="#top" aria-label="JSON Error Finder home">
+          <a className="brand" href="/" aria-label="JSONFmt home">
             <span className="brand-mark"><Braces size={21} strokeWidth={2.25} /></span>
-            <span>JSON Error Finder</span>
+            <span>JSONFmt</span>
           </a>
+
+          <nav className="site-nav" aria-label="Primary navigation">
+            <a href="#top">Tool</a>
+            <a href="/guides/">Guides</a>
+            <a href="/about/">About</a>
+            <a href="/contact/">Contact</a>
+          </nav>
 
           <div className="privacy-note">
             <ShieldCheck size={16} />
@@ -338,6 +355,21 @@ function App() {
           </div>
         </section>
 
+        <section className="guides-band" aria-labelledby="guides-title">
+          <div>
+            <p className="eyebrow">JSON error guides</p>
+            <h2 id="guides-title">Fix the syntax issue, then validate here.</h2>
+          </div>
+          <div className="guide-links">
+            {guideLinks.map((guide) => (
+              <a href={guide.href} key={guide.href}>
+                <BookOpen size={15} />
+                <span>{guide.label}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
         <section className="faq" aria-labelledby="faq-title">
           <div>
             <p className="eyebrow">Quick answers</p>
@@ -358,6 +390,15 @@ function App() {
             </article>
           </div>
         </section>
+
+        <footer className="site-footer">
+          <span>JSONFmt is maintained by the JSON Formatter team.</span>
+          <nav aria-label="Footer navigation">
+            <a href="/privacy/">Privacy Policy</a>
+            <a href="/terms/">Terms of Use</a>
+            <a href="/contact/">Contact</a>
+          </nav>
+        </footer>
       </section>
 
       {toast && (
@@ -450,8 +491,8 @@ function DiagnosticContent({
     const summary = diagnostic.itemCount === null
       ? diagnostic.rootType
       : diagnostic.rootType === 'Array'
-        ? `${diagnostic.rootType} · ${diagnostic.itemCount.toLocaleString('en-US')} ${diagnostic.itemCount === 1 ? 'item' : 'items'}`
-        : `${diagnostic.rootType} · ${diagnostic.itemCount.toLocaleString('en-US')} ${diagnostic.itemCount === 1 ? 'key' : 'keys'}`
+        ? `${diagnostic.rootType} - ${diagnostic.itemCount.toLocaleString('en-US')} ${diagnostic.itemCount === 1 ? 'item' : 'items'}`
+        : `${diagnostic.rootType} - ${diagnostic.itemCount.toLocaleString('en-US')} ${diagnostic.itemCount === 1 ? 'key' : 'keys'}`
 
     return (
       <div className="diagnostic-result valid-result">
