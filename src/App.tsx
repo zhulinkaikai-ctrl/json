@@ -271,32 +271,32 @@ function App() {
         height="100%"
         defaultLanguage="json"
         value={value}
-        theme="json-finder-dark"
+        theme="json-finder-light"
         onMount={handleEditorMount}
         onChange={(nextValue) => {
           setFileError(null)
           setValue(nextValue ?? '')
         }}
         beforeMount={(monaco) => {
-          monaco.editor.defineTheme('json-finder-dark', {
-            base: 'vs-dark',
+          monaco.editor.defineTheme('json-finder-light', {
+            base: 'vs',
             inherit: true,
             rules: [
-              { token: 'string.key.json', foreground: '80d7c2' },
-              { token: 'string.value.json', foreground: 'd5ca8a' },
-              { token: 'number', foreground: 'e7a879' },
-              { token: 'delimiter.bracket.json', foreground: 'cbd3c5' },
+              { token: 'string.key.json', foreground: '0e8f7a' },
+              { token: 'string.value.json', foreground: '4f6f67' },
+              { token: 'number', foreground: 'a56a2c' },
+              { token: 'delimiter.bracket.json', foreground: '536760' },
             ],
             colors: {
-              'editor.background': '#101713',
-              'editorGutter.background': '#101713',
-              'editorLineNumber.foreground': '#57665d',
-              'editorLineNumber.activeForeground': '#c5d0c8',
-              'editorCursor.foreground': '#ffb55f',
-              'editor.selectionBackground': '#284238',
-              'editor.lineHighlightBackground': '#17211c',
-              'editorError.foreground': '#ff7777',
-              'editorError.border': '#00000000',
+              'editor.background': '#ffffff',
+              'editorGutter.background': '#ffffff',
+              'editorLineNumber.foreground': '#94a39f',
+              'editorLineNumber.activeForeground': '#17322b',
+              'editorCursor.foreground': '#159b83',
+              'editor.selectionBackground': '#d9f1eb',
+              'editor.lineHighlightBackground': '#f4faf8',
+              'editorError.foreground': '#d36b6b',
+              'editorError.border': 'transparent',
             },
           })
         }}

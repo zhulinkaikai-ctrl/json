@@ -14,6 +14,8 @@ Make the JSONFmt homepage feel like a formatter first: users paste source JSON o
 - An invalid action clears the previous result and replaces it with the current error diagnostic.
 - If the left input changes after an action, the right panel remains visible but shows a stale-result notice until the user reruns the relevant action.
 - `Copy Output` and `Use output as input` are available only when the right panel contains formatted or minified JSON.
+- Visual style should be pure white and clean, with teal-green as the primary accent color.
+- Avoid black or near-black page backgrounds; use light gray borders and subtle shadows instead.
 
 ## Layout
 
@@ -35,4 +37,3 @@ The existing privacy band, tool links, guides, FAQ, and footer remain below the 
 | Validation success | Valid JSON summary with root type and item count. |
 | Invalid action | Error location, explanation, suggestion, and nearby context. |
 | Stale result | Existing result plus a notice that input changed and the action should be rerun. |
-
