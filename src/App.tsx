@@ -27,6 +27,16 @@ import {
   minifyJson,
   type JsonDiagnostic,
 } from './lib/jsonDiagnostics'
+import {
+  EMPTY_HOMEPAGE_OUTPUT,
+  getHomepageActionFeedback,
+  getHomepageActionLabel,
+  getHomepageOutputText,
+  isHomepageOutputStale,
+  runHomepageAction,
+  type HomepageAction,
+  type HomepageOutput,
+} from './lib/homepageWorkspace'
 import { getToolPageContext } from './lib/toolPageContext'
 
 const INITIAL_SAMPLE = `{
@@ -66,8 +76,10 @@ const toolLinks = [
 ]
 
 function App() {
+  const isHomePage = window.location.pathname === '/'
   const pageContext = getToolPageContext(window.location.pathname)
   const [value, setValue] = useState('')
+  const [homepageOutput, setHomepageOutput] = useState<HomepageOutput>(EMPTY_HOMEPAGE_OUTPUT)
   const [toolState, setToolState] = useState<ToolState>('empty')
   const [diagnostic, setDiagnostic] = useState<JsonDiagnostic | null>(null)
   const [toast, setToast] = useState<Toast>(null)
@@ -131,6 +143,8 @@ function App() {
   const hasValue = value.length > 0
   const characterCount = value.length.toLocaleString('en-US')
   const byteSize = new TextEncoder().encode(value).byteLength
+  const homepageOutputText = getHomepageOutputText(homepageOutput)
+  const homepageOutputStale = isHomepageOutputStale(value, homepageOutput)
 
   const showToast = useCallback((message: string, tone: ToastTone) => {
     setToast({ message, tone })
@@ -160,10 +174,42 @@ function App() {
     }
   }, [hasValue, showToast, value])
 
+  const handleHomepageAction = useCallback((action: HomepageAction) => {
+    if (!hasValue) return
+    const output = runHomepageAction(value, action)
+    setHomepageOutput(output)
+    const feedback = getHomepageActionFeedback(output)
+    showToast(feedback.message, feedback.tone)
+  }, [hasValue, showToast, value])
+
+  const handleCopyOutput = useCallback(async () => {
+    if (!homepageOutputText) return
+    try {
+      await navigator.clipboard.writeText(homepageOutputText)
+      showToast('Output copied to clipboard.', 'success')
+    } catch {
+      showToast('Couldn\'t copy automatically. Select the output and try again.', 'error')
+    }
+  }, [homepageOutputText, showToast])
+
+  const handleUseOutputAsInput = useCallback(() => {
+    if (!homepageOutputText) return
+    setFileError(null)
+    setValue(homepageOutputText)
+    showToast('Output moved to input.', 'success')
+  }, [homepageOutputText, showToast])
+
   const loadValue = useCallback((nextValue: string, message?: string) => {
     setFileError(null)
     setValue(nextValue)
     if (message) showToast(message, 'success')
+  }, [showToast])
+
+  const clearValue = useCallback(() => {
+    setFileError(null)
+    setValue('')
+    setHomepageOutput(EMPTY_HOMEPAGE_OUTPUT)
+    showToast('JSON cleared.', 'success')
   }, [showToast])
 
   const handleFile = useCallback(async (file?: File) => {
@@ -207,6 +253,71 @@ function App() {
     setEditorReady(true)
   }, [])
 
+  const editorDropzone = (
+    <div
+      className={`editor-dropzone ${isDragging ? 'is-dragging' : ''}`}
+      onDragEnter={(event) => { event.preventDefault(); setIsDragging(true) }}
+      onDragOver={(event) => event.preventDefault()}
+      onDragLeave={() => setIsDragging(false)}
+      onDrop={handleDrop}
+    >
+      {isDragging && (
+        <div className="drop-overlay">
+          <FileInput size={30} />
+          <span>Drop your JSON file to open it</span>
+        </div>
+      )}
+      <Editor
+        height="100%"
+        defaultLanguage="json"
+        value={value}
+        theme="json-finder-dark"
+        onMount={handleEditorMount}
+        onChange={(nextValue) => {
+          setFileError(null)
+          setValue(nextValue ?? '')
+        }}
+        beforeMount={(monaco) => {
+          monaco.editor.defineTheme('json-finder-dark', {
+            base: 'vs-dark',
+            inherit: true,
+            rules: [
+              { token: 'string.key.json', foreground: '80d7c2' },
+              { token: 'string.value.json', foreground: 'd5ca8a' },
+              { token: 'number', foreground: 'e7a879' },
+              { token: 'delimiter.bracket.json', foreground: 'cbd3c5' },
+            ],
+            colors: {
+              'editor.background': '#101713',
+              'editorGutter.background': '#101713',
+              'editorLineNumber.foreground': '#57665d',
+              'editorLineNumber.activeForeground': '#c5d0c8',
+              'editorCursor.foreground': '#ffb55f',
+              'editor.selectionBackground': '#284238',
+              'editor.lineHighlightBackground': '#17211c',
+              'editorError.foreground': '#ff7777',
+              'editorError.border': '#00000000',
+            },
+          })
+        }}
+        options={{
+          automaticLayout: true,
+          fontFamily: "'IBM Plex Mono', 'Cascadia Code', monospace",
+          fontSize: 14,
+          lineHeight: 22,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          wordWrap: 'on',
+          padding: { top: 18, bottom: 18 },
+          glyphMargin: true,
+          lineNumbersMinChars: 3,
+          renderLineHighlight: 'line',
+          placeholder: 'Paste or type JSON here...',
+        }}
+      />
+    </div>
+  )
+
   return (
     <main className="app-shell">
       <section className="workspace" aria-label={pageContext.heading}>
@@ -244,124 +355,122 @@ function App() {
           </div>
         </div>
 
-        <div className="tool-layout">
-          <section className="editor-panel" aria-label="JSON editor">
-            <div className="panel-toolbar">
-              <div className="editor-label">
-                <span className={`state-dot ${toolState}`} aria-hidden="true" />
-                <span>{pageContext.editorLabel}</span>
-                {toolState === 'editing' && <span className="checking">Checking...</span>}
-              </div>
-              <div className="toolbar-actions">
-                <IconButton label="Format JSON" disabled={!isValid} onClick={handleFormat}>
-                  <Wand2 size={16} />
-                </IconButton>
-                <IconButton label="Minify JSON" disabled={!isValid} onClick={handleMinify}>
-                  <Minimize2 size={16} />
-                </IconButton>
-                <IconButton label="Copy JSON" disabled={!hasValue} onClick={() => void handleCopy()}>
-                  <Copy size={16} />
-                </IconButton>
-                <span className="toolbar-divider" />
-                <IconButton label="Load valid sample" onClick={() => loadValue(INITIAL_SAMPLE, 'Sample JSON loaded.')}>
-                  <Sparkles size={16} />
-                </IconButton>
-                <IconButton label="Import a local JSON file" onClick={() => fileInputRef.current?.click()}>
-                  <Upload size={16} />
-                </IconButton>
-                <IconButton label="Clear editor" disabled={!hasValue} onClick={() => loadValue('', 'JSON cleared.')}>
-                  <Trash2 size={16} />
-                </IconButton>
-                <input
-                  ref={fileInputRef}
-                  className="visually-hidden"
-                  type="file"
-                  accept="application/json,.json"
-                  onChange={(event) => {
-                    void handleFile(event.target.files?.[0])
-                    event.currentTarget.value = ''
-                  }}
-                />
-              </div>
-            </div>
-
-            <div
-              className={`editor-dropzone ${isDragging ? 'is-dragging' : ''}`}
-              onDragEnter={(event) => { event.preventDefault(); setIsDragging(true) }}
-              onDragOver={(event) => event.preventDefault()}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-            >
-              {isDragging && (
-                <div className="drop-overlay">
-                  <FileInput size={30} />
-                  <span>Drop your JSON file to open it</span>
-                </div>
-              )}
-              <Editor
-                height="100%"
-                defaultLanguage="json"
-                value={value}
-                theme="json-finder-dark"
-                onMount={handleEditorMount}
-                onChange={(nextValue) => {
-                  setFileError(null)
-                  setValue(nextValue ?? '')
-                }}
-                beforeMount={(monaco) => {
-                  monaco.editor.defineTheme('json-finder-dark', {
-                    base: 'vs-dark',
-                    inherit: true,
-                    rules: [
-                      { token: 'string.key.json', foreground: '80d7c2' },
-                      { token: 'string.value.json', foreground: 'd5ca8a' },
-                      { token: 'number', foreground: 'e7a879' },
-                      { token: 'delimiter.bracket.json', foreground: 'cbd3c5' },
-                    ],
-                    colors: {
-                      'editor.background': '#101713',
-                      'editorGutter.background': '#101713',
-                      'editorLineNumber.foreground': '#57665d',
-                      'editorLineNumber.activeForeground': '#c5d0c8',
-                      'editorCursor.foreground': '#ffb55f',
-                      'editor.selectionBackground': '#284238',
-                      'editor.lineHighlightBackground': '#17211c',
-                      'editorError.foreground': '#ff7777',
-                      'editorError.border': '#00000000',
-                    },
-                  })
-                }}
-                options={{
-                  automaticLayout: true,
-                  fontFamily: "'IBM Plex Mono', 'Cascadia Code', monospace",
-                  fontSize: 14,
-                  lineHeight: 22,
-                  minimap: { enabled: false },
-                  scrollBeyondLastLine: false,
-                  wordWrap: 'on',
-                  padding: { top: 18, bottom: 18 },
-                  glyphMargin: true,
-                  lineNumbersMinChars: 3,
-                  renderLineHighlight: 'line',
-                  placeholder: 'Paste or type JSON here...',
+        {isHomePage ? (
+          <>
+            <div className="home-commandbar" role="toolbar" aria-label="JSON actions">
+              <CommandButton label="Format JSON" primary disabled={!hasValue} onClick={() => handleHomepageAction('format')}>
+                <Wand2 size={16} />
+              </CommandButton>
+              <CommandButton label="Validate" disabled={!hasValue} onClick={() => handleHomepageAction('validate')}>
+                <Check size={16} />
+              </CommandButton>
+              <CommandButton label="Minify" disabled={!hasValue} onClick={() => handleHomepageAction('minify')}>
+                <Minimize2 size={16} />
+              </CommandButton>
+              <CommandButton label="Upload" onClick={() => fileInputRef.current?.click()}>
+                <Upload size={16} />
+              </CommandButton>
+              <CommandButton label="Clear" disabled={!hasValue && homepageOutput.kind === 'empty'} onClick={clearValue}>
+                <Trash2 size={16} />
+              </CommandButton>
+              <input
+                ref={fileInputRef}
+                className="visually-hidden"
+                type="file"
+                accept="application/json,.json"
+                onChange={(event) => {
+                  void handleFile(event.target.files?.[0])
+                  event.currentTarget.value = ''
                 }}
               />
             </div>
-            <div className="editor-footer">
-              <span>Paste JSON, import a file, or drag a .json file into the editor.</span>
-              <span>Strict JSON only</span>
-            </div>
-          </section>
 
-          <aside className="diagnostic-panel" aria-live="polite">
-            <DiagnosticContent
-              state={toolState}
-              diagnostic={diagnostic}
-              fileError={fileError}
-              onLoadSample={() => loadValue(INITIAL_SAMPLE, 'Sample JSON loaded.')}
-            />
-          </aside>
-        </div>
+            <div className="home-tool-layout">
+              <section className="editor-panel home-input-panel" aria-label="JSON input">
+                <div className="panel-toolbar">
+                  <div className="editor-label">
+                    <span className={`state-dot ${toolState}`} aria-hidden="true" />
+                    <span>JSON Input</span>
+                    {toolState === 'editing' && <span className="checking">Checking...</span>}
+                  </div>
+                </div>
+                {editorDropzone}
+                <div className="editor-footer">
+                  <span>Paste JSON, import a file, or drag a .json file into the editor.</span>
+                  <span>Source stays unchanged</span>
+                </div>
+              </section>
+
+              <HomepageOutputPanel
+                output={homepageOutput}
+                inputValue={value}
+                isStale={homepageOutputStale}
+                outputText={homepageOutputText}
+                onCopyOutput={() => void handleCopyOutput()}
+                onUseOutputAsInput={handleUseOutputAsInput}
+                onLoadSample={() => loadValue(INITIAL_SAMPLE, 'Sample JSON loaded.')}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="tool-layout">
+            <section className="editor-panel" aria-label="JSON editor">
+              <div className="panel-toolbar">
+                <div className="editor-label">
+                  <span className={`state-dot ${toolState}`} aria-hidden="true" />
+                  <span>{pageContext.editorLabel}</span>
+                  {toolState === 'editing' && <span className="checking">Checking...</span>}
+                </div>
+                <div className="toolbar-actions">
+                  <IconButton label="Format JSON" disabled={!isValid} onClick={handleFormat}>
+                    <Wand2 size={16} />
+                  </IconButton>
+                  <IconButton label="Minify JSON" disabled={!isValid} onClick={handleMinify}>
+                    <Minimize2 size={16} />
+                  </IconButton>
+                  <IconButton label="Copy JSON" disabled={!hasValue} onClick={() => void handleCopy()}>
+                    <Copy size={16} />
+                  </IconButton>
+                  <span className="toolbar-divider" />
+                  <IconButton label="Load valid sample" onClick={() => loadValue(INITIAL_SAMPLE, 'Sample JSON loaded.')}>
+                    <Sparkles size={16} />
+                  </IconButton>
+                  <IconButton label="Import a local JSON file" onClick={() => fileInputRef.current?.click()}>
+                    <Upload size={16} />
+                  </IconButton>
+                  <IconButton label="Clear editor" disabled={!hasValue} onClick={clearValue}>
+                    <Trash2 size={16} />
+                  </IconButton>
+                  <input
+                    ref={fileInputRef}
+                    className="visually-hidden"
+                    type="file"
+                    accept="application/json,.json"
+                    onChange={(event) => {
+                      void handleFile(event.target.files?.[0])
+                      event.currentTarget.value = ''
+                    }}
+                  />
+                </div>
+              </div>
+
+              {editorDropzone}
+              <div className="editor-footer">
+                <span>Paste JSON, import a file, or drag a .json file into the editor.</span>
+                <span>Strict JSON only</span>
+              </div>
+            </section>
+
+            <aside className="diagnostic-panel" aria-live="polite">
+              <DiagnosticContent
+                state={toolState}
+                diagnostic={diagnostic}
+                fileError={fileError}
+                onLoadSample={() => loadValue(INITIAL_SAMPLE, 'Sample JSON loaded.')}
+              />
+            </aside>
+          </div>
+        )}
 
         <section className="privacy-band" aria-label="Privacy notice">
           <ShieldCheck size={18} />
@@ -470,6 +579,197 @@ function IconButton({
       {children}
     </button>
   )
+}
+
+function CommandButton({
+  label,
+  children,
+  disabled = false,
+  primary = false,
+  onClick,
+}: {
+  label: string
+  children: React.ReactNode
+  disabled?: boolean
+  primary?: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      className={`command-button ${primary ? 'primary' : ''}`}
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+      <span>{label}</span>
+    </button>
+  )
+}
+
+function HomepageOutputPanel({
+  output,
+  inputValue,
+  isStale,
+  outputText,
+  onCopyOutput,
+  onUseOutputAsInput,
+  onLoadSample,
+}: {
+  output: HomepageOutput
+  inputValue: string
+  isStale: boolean
+  outputText: string | null
+  onCopyOutput: () => void
+  onUseOutputAsInput: () => void
+  onLoadSample: () => void
+}) {
+  const outputLabel = getHomepageOutputLabel(output)
+  const staleLabel = getHomepageStaleLabel(output)
+
+  return (
+    <aside className="output-panel" aria-live="polite" aria-label="JSON output">
+      <div className="output-toolbar">
+        <div className="editor-label">
+          <span className={`state-dot ${getHomepageOutputTone(output)}`} aria-hidden="true" />
+          <span>{outputLabel}</span>
+        </div>
+        <div className="output-actions">
+          <button className="output-action-button" type="button" disabled={!outputText} onClick={onCopyOutput}>
+            <Copy size={14} />
+            <span>Copy Output</span>
+          </button>
+          <button className="output-action-button" type="button" disabled={!outputText} onClick={onUseOutputAsInput}>
+            <RotateCcw size={14} />
+            <span>Use output as input</span>
+          </button>
+        </div>
+      </div>
+
+      {isStale && (
+        <div className="stale-notice" role="status">
+          <RotateCcw size={14} />
+          <span>Input changed - click {staleLabel} to update</span>
+        </div>
+      )}
+
+      <div className="output-body">
+        {renderHomepageOutputBody(output, inputValue, outputText, onLoadSample)}
+      </div>
+    </aside>
+  )
+}
+
+function renderHomepageOutputBody(
+  output: HomepageOutput,
+  inputValue: string,
+  outputText: string | null,
+  onLoadSample: () => void,
+) {
+  if (output.kind === 'empty') {
+    return (
+      <div className="output-empty">
+        <div className="diagnostic-icon quiet"><Braces size={25} /></div>
+        <p className="panel-kicker">Output</p>
+        <h2>Formatted JSON will appear here.</h2>
+        <p>{inputValue ? 'Choose Format, Validate, or Minify from the toolbar.' : 'Paste JSON to begin.'}</p>
+        {!inputValue && (
+          <button className="sample-button" type="button" onClick={onLoadSample}>
+            <Sparkles size={16} /> Load a sample
+          </button>
+        )}
+      </div>
+    )
+  }
+
+  if (output.kind === 'text' && outputText) {
+    return (
+      <pre className="output-code" aria-readonly="true" tabIndex={0}>
+        <code>{outputText}</code>
+      </pre>
+    )
+  }
+
+  if (output.kind === 'validation') {
+    const summary = getValidDiagnosticSummary(output.diagnostic)
+
+    return (
+      <div className="diagnostic-result valid-result">
+        <div className="result-heading">
+          <div className="diagnostic-icon valid"><Check size={25} /></div>
+          <div>
+            <p className="panel-kicker">Validation complete</p>
+            <h2>Valid JSON</h2>
+          </div>
+        </div>
+        <p>This JSON is valid. The source input was not changed.</p>
+        <div className="valid-summary">
+          <span>{summary}</span>
+          <span>{output.diagnostic.characterCount.toLocaleString('en-US')} characters</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (output.kind === 'diagnostic') {
+    return (
+      <div className="diagnostic-result invalid-result">
+        <div className="result-heading">
+          <div className="diagnostic-icon invalid"><X size={25} /></div>
+          <div>
+            <p className="panel-kicker">Syntax error</p>
+            <h2>Invalid JSON</h2>
+          </div>
+        </div>
+        <div className="location-pill"><Info size={15} /> Line {output.diagnostic.line}, Column {output.diagnostic.column}</div>
+        <div className="diagnostic-block">
+          <span>What happened</span>
+          <strong>{output.diagnostic.title}</strong>
+          <p>{output.diagnostic.explanation}</p>
+        </div>
+        <div className="diagnostic-block suggestion-block">
+          <span>How to fix it</span>
+          <p>{output.diagnostic.suggestion}</p>
+        </div>
+        <div className="context-block">
+          <span>Near this location</span>
+          <code>{output.diagnostic.context || 'End of input'}</code>
+        </div>
+      </div>
+    )
+  }
+
+  return null
+}
+
+function getHomepageOutputLabel(output: HomepageOutput): string {
+  if (output.kind === 'text') return output.action === 'format' ? 'Formatted Output' : 'Minified Output'
+  if (output.kind === 'validation') return 'Validation Result'
+  if (output.kind === 'diagnostic') return 'Error Diagnostic'
+  return 'Output'
+}
+
+function getHomepageOutputTone(output: HomepageOutput): ToolState {
+  if (output.kind === 'empty') return 'empty'
+  if (output.kind === 'diagnostic') return 'invalid'
+  return 'valid'
+}
+
+function getHomepageStaleLabel(output: HomepageOutput): string {
+  if (output.kind === 'validation') return 'Validate'
+  if (output.kind === 'diagnostic') return getHomepageActionLabel(output.action)
+  if (output.kind === 'text') return getHomepageActionLabel(output.action)
+  return 'Format'
+}
+
+function getValidDiagnosticSummary(diagnostic: Extract<JsonDiagnostic, { status: 'valid' }>): string {
+  if (diagnostic.itemCount === null) return diagnostic.rootType
+
+  if (diagnostic.rootType === 'Array') {
+    return `${diagnostic.rootType} - ${diagnostic.itemCount.toLocaleString('en-US')} ${diagnostic.itemCount === 1 ? 'item' : 'items'}`
+  }
+
+  return `${diagnostic.rootType} - ${diagnostic.itemCount.toLocaleString('en-US')} ${diagnostic.itemCount === 1 ? 'key' : 'keys'}`
 }
 
 function DiagnosticContent({

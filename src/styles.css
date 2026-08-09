@@ -156,6 +156,69 @@ h1 {
   box-shadow: 0 18px 48px #0000003b;
 }
 
+.home-commandbar {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #31483c;
+  border-bottom: 0;
+  background: #162019;
+}
+
+.command-button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid #385142;
+  border-radius: 5px;
+  color: #d8e3da;
+  background: #1c2a21;
+  font-size: 13px;
+  font-weight: 700;
+  transition: color .15s ease, background .15s ease, border-color .15s ease;
+}
+
+.command-button:hover:not(:disabled) {
+  color: #f3f6ea;
+  border-color: #607d50;
+  background: #273a2b;
+}
+
+.command-button.primary {
+  color: #102018;
+  border-color: #d5ee8f;
+  background: #d5ee8f;
+}
+
+.command-button.primary:hover:not(:disabled) {
+  color: #102018;
+  background: #e7f6b8;
+}
+
+.command-button:disabled {
+  color: #647267;
+  border-color: #2c3f34;
+  background: #17211b;
+}
+
+.home-tool-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 620px;
+  border: 1px solid #31483c;
+  background: #101713;
+  box-shadow: 0 18px 48px #0000003b;
+}
+
+.home-input-panel {
+  min-width: 0;
+}
+
 .editor-panel { min-width: 0; display: flex; flex-direction: column; }
 
 .panel-toolbar {
@@ -238,6 +301,112 @@ h1 {
   min-width: 0;
   border-left: 1px solid #31483c;
   background: #131b16;
+}
+
+.output-panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border-left: 1px solid #31483c;
+  background: #131b16;
+}
+
+.output-toolbar {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px 0 16px;
+  border-bottom: 1px solid #293c32;
+  background: #162019;
+}
+
+.output-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.output-action-button {
+  min-height: 31px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 9px;
+  border: 1px solid #385142;
+  border-radius: 5px;
+  color: #c8d7ca;
+  background: #1d2b22;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.output-action-button:hover:not(:disabled) {
+  color: #f3f6ea;
+  border-color: #607d50;
+  background: #26392a;
+}
+
+.output-action-button:disabled {
+  color: #56645a;
+  border-color: #2c3c32;
+  background: #17201a;
+}
+
+.stale-notice {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-bottom: 1px solid #4d3d22;
+  color: #f0cf8d;
+  background: #251f15;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+
+.output-body {
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.output-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 26px;
+}
+
+.output-empty h2 {
+  margin: 7px 0 9px;
+  color: #eff3ed;
+  font-size: 21px;
+  line-height: 1.18;
+}
+
+.output-empty p:not(.panel-kicker) {
+  color: #96a79b;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.output-code {
+  width: 100%;
+  min-height: 100%;
+  overflow: auto;
+  margin: 0;
+  padding: 18px;
+  color: #dbe8de;
+  background: #101713;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .diagnostic-empty, .diagnostic-result {
@@ -930,9 +1099,10 @@ h1 {
 @media (max-width: 940px) {
   .app-shell { padding: 14px; }
   .intro { padding: 36px 0 24px; }
-  .tool-layout { grid-template-columns: 1fr; min-height: 0; }
+  .tool-layout, .home-tool-layout { grid-template-columns: 1fr; min-height: 0; }
   .editor-panel { min-height: 510px; }
   .diagnostic-panel { min-height: 330px; border-top: 1px solid #31483c; border-left: 0; }
+  .output-panel { min-height: 430px; border-top: 1px solid #31483c; border-left: 0; }
   .faq { grid-template-columns: 1fr; gap: 24px; }
   .guides-band, .tool-entry-band, .entry-guides { grid-template-columns: 1fr; gap: 20px; }
   .guide-links, .guide-card-grid, .tool-card-grid, .tool-entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -948,8 +1118,18 @@ h1 {
   .intro { display: block; }
   .input-stats { margin-top: 17px; }
   .panel-toolbar { align-items: flex-start; height: auto; min-height: 88px; padding: 12px; }
+  .home-commandbar { align-items: stretch; }
+  .command-button { flex: 1 1 135px; justify-content: center; }
   .editor-label { padding-top: 7px; }
   .toolbar-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .output-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    height: auto;
+    padding: 12px;
+  }
+  .output-actions { width: 100%; flex-wrap: wrap; }
+  .output-action-button { flex: 1 1 150px; justify-content: center; }
   .toolbar-divider { display: none; }
   .editor-panel { min-height: 500px; }
   .editor-footer span:first-child { display: none; }
