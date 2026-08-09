@@ -73,6 +73,18 @@ const toolPageContexts: Record<string, ToolPageContext> = {
   },
 }
 
+const workspaceRoutes = new Set(['/', ...Object.keys(toolPageContexts)])
+
 export function getToolPageContext(pathname: string): ToolPageContext {
-  return toolPageContexts[pathname] ?? homeContext
+  const normalizedPath = normalizePathname(pathname)
+  return toolPageContexts[normalizedPath] ?? homeContext
+}
+
+export function isWorkspaceRoute(pathname: string): boolean {
+  return workspaceRoutes.has(normalizePathname(pathname))
+}
+
+function normalizePathname(pathname: string): string {
+  if (pathname === '/') return pathname
+  return pathname.endsWith('/') ? pathname : `${pathname}/`
 }

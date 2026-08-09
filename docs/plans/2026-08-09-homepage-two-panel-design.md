@@ -1,12 +1,12 @@
-# Homepage Two-Panel Design
+# Two-Panel JSON Workspace Design
 
 ## Goal
 
-Make the JSONFmt homepage feel like a formatter first: users paste source JSON on the left, choose a command, and receive a read-only result on the right.
+Make JSONFmt feel like a formatter first on the homepage and JSON tool pages: users paste source JSON on the left, choose a command, and receive a read-only result on the right.
 
 ## Confirmed Decisions
 
-- The homepage has two equally important panels: `JSON Input` and `Output`.
+- The homepage and every JSON tool page have two equally important panels: `JSON Input` and `Output`.
 - The left input remains unchanged after `Format`, `Validate`, and `Minify`.
 - The right panel is read-only.
 - Results appear only after the user clicks an action; there is no automatic formatting preview while typing.
@@ -26,7 +26,7 @@ The first viewport contains a compact headline, a single command bar, and a two-
 - Output panel: read-only code result or diagnostic state.
 - Output header: result status, `Copy Output`, and `Use output as input`.
 
-The existing privacy band, tool links, guides, FAQ, and footer remain below the workspace.
+The existing privacy band, tool links, guides, FAQ, and footer remain below the workspace. Static guide, terms, privacy, and contact pages do not render the editor workspace.
 
 ## Output States
 

@@ -37,7 +37,7 @@ import {
   type HomepageAction,
   type HomepageOutput,
 } from './lib/homepageWorkspace'
-import { getToolPageContext } from './lib/toolPageContext'
+import { getToolPageContext, isWorkspaceRoute } from './lib/toolPageContext'
 
 const INITIAL_SAMPLE = `{
   "service": "JSON Error Finder",
@@ -76,7 +76,7 @@ const toolLinks = [
 ]
 
 function App() {
-  const isHomePage = window.location.pathname === '/'
+  const usesTwoPanelWorkspace = isWorkspaceRoute(window.location.pathname)
   const pageContext = getToolPageContext(window.location.pathname)
   const [value, setValue] = useState('')
   const [homepageOutput, setHomepageOutput] = useState<HomepageOutput>(EMPTY_HOMEPAGE_OUTPUT)
@@ -355,7 +355,7 @@ function App() {
           </div>
         </div>
 
-        {isHomePage ? (
+        {usesTwoPanelWorkspace ? (
           <>
             <div className="home-commandbar" role="toolbar" aria-label="JSON actions">
               <CommandButton label="Format JSON" primary disabled={!hasValue} onClick={() => handleHomepageAction('format')}>
