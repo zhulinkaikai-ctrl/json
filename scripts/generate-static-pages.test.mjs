@@ -2,20 +2,38 @@ import { describe, expect, it } from 'vitest'
 
 import {
   GUIDE_PAGES,
+  HOME_PAGE,
   PAGE_ROUTES,
   SITE_URL,
+  TOOL_PAGES,
+  TOOLS_INDEX,
   TRUST_PAGES,
   buildRobotsTxt,
   buildSitemapXml,
   renderStaticPage,
 } from './generate-static-pages.mjs'
 
-describe('V2 static page registry', () => {
-  it('defines the expected canonical site URL and route count', () => {
+describe('V3 static page registry', () => {
+  it('defines the expected canonical site URL and entry-page route count', () => {
     expect(SITE_URL).toBe('https://jsonfmt.org')
-    expect(PAGE_ROUTES).toHaveLength(12)
-    expect(GUIDE_PAGES).toHaveLength(6)
+    expect(PAGE_ROUTES.length).toBeGreaterThanOrEqual(25)
+    expect(GUIDE_PAGES).toHaveLength(10)
+    expect(TOOL_PAGES).toHaveLength(8)
     expect(TRUST_PAGES).toHaveLength(4)
+    expect(TOOLS_INDEX.path).toBe('/tools/')
+    expect(HOME_PAGE.title).toContain('JSON Formatter')
+    expect(HOME_PAGE.description).toMatch(/validate/i)
+
+    expect(TOOL_PAGES.map((page) => page.path)).toEqual(expect.arrayContaining([
+      '/json-formatter/',
+      '/json-validator/',
+      '/json-minifier/',
+      '/json-beautifier/',
+      '/json-pretty-print/',
+      '/json-error-finder/',
+      '/fix-invalid-json/',
+      '/json-viewer/',
+    ]))
   })
 
   it('uses absolute canonical URLs on every static route', () => {
@@ -34,6 +52,22 @@ describe('V2 static page registry', () => {
     expect(html).toContain('Try it in JSON Error Finder')
     expect(html).not.toContain('adsbygoogle')
     expect(html).not.toContain('pagead2.googlesyndication.com')
+  })
+
+  it('renders a crawlable interactive shell and related links on tool pages', () => {
+    const html = renderStaticPage(TOOL_PAGES[0], {
+      scriptLinks: ['/assets/index-test.js'],
+    })
+
+    expect(html).toContain('id="root"')
+    expect(html).toContain('type="module"')
+    expect(html).toContain('"@type":"SoftwareApplication"')
+    expect(html).toContain('"@type":"BreadcrumbList"')
+    expect(html).toContain('Related JSON tools')
+    expect(html).toContain('Related guides')
+    expect(html).toContain('href="/privacy/"')
+    expect(html).toContain('href="/terms/"')
+    expect(html).toContain('href="/contact/"')
   })
 
   it('keeps every guide within the V2 target word-count range', () => {

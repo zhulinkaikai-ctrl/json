@@ -128,6 +128,13 @@ h1 {
   line-height: 1.55;
 }
 
+.tool-context {
+  margin: 12px 0 0;
+  color: #d4dfb2;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+
 .input-stats {
   display: flex;
   align-items: center;
@@ -361,6 +368,67 @@ h1 {
   border-bottom: 1px solid #294036;
 }
 
+.tool-entry-band {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 34px;
+  padding: 34px 0;
+  border-bottom: 1px solid #294036;
+}
+
+.tool-entry-band h2 {
+  margin: 8px 0 0;
+  color: #edf1e8;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.tool-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tool-entry-link {
+  min-height: 74px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #31483c;
+  border-radius: 6px;
+  color: #dfe9df;
+  background: #121b16;
+  text-decoration: none;
+}
+
+.tool-entry-link:hover {
+  border-color: #6b865a;
+  background: #18251d;
+}
+
+.tool-entry-link svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #f0b466;
+}
+
+.tool-entry-link span {
+  display: grid;
+  gap: 4px;
+}
+
+.tool-entry-link strong {
+  font-size: 13px;
+  line-height: 1.15;
+}
+
+.tool-entry-link small {
+  color: #82948a;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .guides-band h2 {
   margin: 8px 0 0;
   color: #edf1e8;
@@ -421,6 +489,7 @@ h1 {
 .site-footer nav, .static-footer nav {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
@@ -467,6 +536,203 @@ h1 {
   gap: 16px;
   margin: 0 auto;
   padding-bottom: 60px;
+}
+
+.tool-card-grid {
+  width: min(1120px, 100%);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 auto;
+  padding-bottom: 44px;
+}
+
+.tool-card {
+  min-height: 226px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 18px;
+  border: 1px solid #31483c;
+  border-radius: 6px;
+  background: #121b16;
+}
+
+.tool-card > p {
+  margin-bottom: 14px;
+  color: #f0b466;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.tool-card h2 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.tool-card h2 a {
+  color: #eef3ea;
+  text-decoration: none;
+}
+
+.tool-card > span {
+  color: #94a69a;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.tool-card-link {
+  margin-top: auto;
+  padding-top: 18px;
+  color: #d5ee8f;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.entry-guides {
+  width: min(1120px, 100%);
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 34px;
+  margin: 0 auto;
+  padding: 34px 0 60px;
+}
+
+.entry-guides h2 {
+  margin: 8px 0 0;
+  color: #edf1e8;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.entry-link-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.entry-link-list a {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #31483c;
+  border-radius: 6px;
+  color: #d9e7dd;
+  background: #121b16;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.entry-link-list a:hover {
+  border-color: #5f7a54;
+  background: #19251e;
+}
+
+.tool-hero {
+  padding-bottom: 28px;
+}
+
+.tool-preview-grid {
+  width: min(1120px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  min-height: 316px;
+  margin: 0 auto;
+  border: 1px solid #31483c;
+  background: #101713;
+}
+
+.tool-preview {
+  min-width: 0;
+}
+
+.tool-preview-bar {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid #293c32;
+  color: #cdd9d0;
+  background: #162019;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+
+.tool-preview-bar span:last-child {
+  color: #a6d56d;
+}
+
+.tool-preview pre {
+  margin: 0;
+  padding: 22px;
+  color: #b9d9ce;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.tool-preview-result {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 26px;
+  border-left: 1px solid #31483c;
+  background: #131b16;
+}
+
+.tool-preview-result h2 {
+  margin: 8px 0 10px;
+  color: #edf3ea;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.tool-preview-result p:not(.eyebrow) {
+  margin-bottom: 0;
+  color: #96a79b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.tool-copy {
+  padding-top: 44px;
+}
+
+.related-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 42px;
+  padding-top: 24px;
+  border-top: 1px solid #31483c;
+}
+
+.related-links > div {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+}
+
+.related-links .eyebrow {
+  margin-bottom: 2px;
+}
+
+.related-links a {
+  color: #c9dbcc;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.related-links a:hover {
+  color: #e7f1d3;
 }
 
 .guide-card {
@@ -668,9 +934,11 @@ h1 {
   .editor-panel { min-height: 510px; }
   .diagnostic-panel { min-height: 330px; border-top: 1px solid #31483c; border-left: 0; }
   .faq { grid-template-columns: 1fr; gap: 24px; }
-  .guides-band { grid-template-columns: 1fr; gap: 20px; }
-  .guide-links, .guide-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guides-band, .tool-entry-band, .entry-guides { grid-template-columns: 1fr; gap: 20px; }
+  .guide-links, .guide-card-grid, .tool-card-grid, .tool-entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .code-comparison { grid-template-columns: 1fr; }
+  .tool-preview-grid { grid-template-columns: 1fr; min-height: 0; }
+  .tool-preview-result { min-height: 220px; border-top: 1px solid #31483c; border-left: 0; }
 }
 
 @media (max-width: 640px) {
@@ -687,7 +955,7 @@ h1 {
   .editor-footer span:first-child { display: none; }
   .editor-footer { justify-content: flex-end; }
   .faq-grid { grid-template-columns: 1fr; gap: 18px; }
-  .guide-links, .guide-card-grid { grid-template-columns: 1fr; }
+  .guide-links, .guide-card-grid, .tool-card-grid, .tool-entry-grid, .entry-link-list, .related-links { grid-template-columns: 1fr; }
   .site-footer, .static-footer, .static-topbar {
     align-items: flex-start;
     flex-direction: column;

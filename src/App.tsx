@@ -27,6 +27,7 @@ import {
   minifyJson,
   type JsonDiagnostic,
 } from './lib/jsonDiagnostics'
+import { getToolPageContext } from './lib/toolPageContext'
 
 const INITIAL_SAMPLE = `{
   "service": "JSON Error Finder",
@@ -53,7 +54,19 @@ const guideLinks = [
   { href: '/guides/comments-in-json/', label: 'Comments in JSON' },
 ]
 
+const toolLinks = [
+  { href: '/json-formatter/', label: 'Formatter', description: 'Indent valid JSON for review.', icon: Wand2 },
+  { href: '/json-validator/', label: 'Validator', description: 'Check strict JSON syntax.', icon: Check },
+  { href: '/json-minifier/', label: 'Minifier', description: 'Compact valid JSON safely.', icon: Minimize2 },
+  { href: '/json-error-finder/', label: 'Error finder', description: 'Locate the first syntax issue.', icon: FileWarning },
+  { href: '/json-beautifier/', label: 'Beautifier', description: 'Make nested JSON readable.', icon: Sparkles },
+  { href: '/json-pretty-print/', label: 'Pretty print', description: 'Expand compact JSON locally.', icon: Braces },
+  { href: '/fix-invalid-json/', label: 'Fix invalid JSON', description: 'Understand the parser error.', icon: Info },
+  { href: '/json-viewer/', label: 'Viewer', description: 'Inspect formatted JSON structure.', icon: BookOpen },
+]
+
 function App() {
+  const pageContext = getToolPageContext(window.location.pathname)
   const [value, setValue] = useState('')
   const [toolState, setToolState] = useState<ToolState>('empty')
   const [diagnostic, setDiagnostic] = useState<JsonDiagnostic | null>(null)
@@ -196,7 +209,7 @@ function App() {
 
   return (
     <main className="app-shell">
-      <section className="workspace" aria-label="JSON Error Finder">
+      <section className="workspace" aria-label={pageContext.heading}>
         <header className="topbar">
           <a className="brand" href="/" aria-label="JSONFmt home">
             <span className="brand-mark"><Braces size={21} strokeWidth={2.25} /></span>
@@ -204,10 +217,12 @@ function App() {
           </a>
 
           <nav className="site-nav" aria-label="Primary navigation">
-            <a href="#top">Tool</a>
+            <a href="/json-formatter/">Formatter</a>
+            <a href="/json-validator/">Validator</a>
+            <a href="/json-minifier/">Minifier</a>
+            <a href="/json-error-finder/">Error Finder</a>
+            <a href="/tools/">Tools</a>
             <a href="/guides/">Guides</a>
-            <a href="/about/">About</a>
-            <a href="/contact/">Contact</a>
           </nav>
 
           <div className="privacy-note">
@@ -218,9 +233,10 @@ function App() {
 
         <div className="intro" id="top">
           <div>
-            <p className="eyebrow">Strict JSON validator</p>
-            <h1>Fix invalid JSON, fast.</h1>
-            <p className="lead">Find syntax errors, understand what went wrong, and repair your JSON without sending it anywhere.</p>
+            <p className="eyebrow">{pageContext.eyebrow}</p>
+            <h1>{pageContext.heading}</h1>
+            <p className="lead">{pageContext.lead}</p>
+            <p className="tool-context">{pageContext.actionHint}</p>
           </div>
           <div className="input-stats" aria-label="Input statistics">
             <span>{hasValue ? characterCount : '0'} chars</span>
@@ -233,7 +249,7 @@ function App() {
             <div className="panel-toolbar">
               <div className="editor-label">
                 <span className={`state-dot ${toolState}`} aria-hidden="true" />
-                <span>JSON input</span>
+                <span>{pageContext.editorLabel}</span>
                 {toolState === 'editing' && <span className="checking">Checking...</span>}
               </div>
               <div className="toolbar-actions">
@@ -355,6 +371,28 @@ function App() {
           </div>
         </section>
 
+        <section className="tool-entry-band" aria-labelledby="tools-title">
+          <div>
+            <p className="eyebrow">JSON tools</p>
+            <h2 id="tools-title">Choose the exact task.</h2>
+          </div>
+          <div className="tool-entry-grid">
+            {toolLinks.map((tool) => {
+              const Icon = tool.icon
+
+              return (
+                <a className="tool-entry-link" href={tool.href} key={tool.href}>
+                  <Icon size={16} />
+                  <span>
+                    <strong>{tool.label}</strong>
+                    <small>{tool.description}</small>
+                  </span>
+                </a>
+              )
+            })}
+          </div>
+        </section>
+
         <section className="guides-band" aria-labelledby="guides-title">
           <div>
             <p className="eyebrow">JSON error guides</p>
@@ -394,6 +432,11 @@ function App() {
         <footer className="site-footer">
           <span>JSONFmt is maintained by the JSON Formatter team.</span>
           <nav aria-label="Footer navigation">
+            <a href="/tools/">All tools</a>
+            <a href="/json-formatter/">Formatter</a>
+            <a href="/json-validator/">Validator</a>
+            <a href="/json-minifier/">Minifier</a>
+            <a href="/guides/">Guides</a>
             <a href="/privacy/">Privacy Policy</a>
             <a href="/terms/">Terms of Use</a>
             <a href="/contact/">Contact</a>
