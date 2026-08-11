@@ -357,34 +357,6 @@ function App() {
 
         {usesTwoPanelWorkspace ? (
           <>
-            <div className="home-commandbar" role="toolbar" aria-label="JSON actions">
-              <CommandButton label="Format JSON" primary disabled={!hasValue} onClick={() => handleHomepageAction('format')}>
-                <Wand2 size={16} />
-              </CommandButton>
-              <CommandButton label="Validate" disabled={!hasValue} onClick={() => handleHomepageAction('validate')}>
-                <Check size={16} />
-              </CommandButton>
-              <CommandButton label="Minify" disabled={!hasValue} onClick={() => handleHomepageAction('minify')}>
-                <Minimize2 size={16} />
-              </CommandButton>
-              <CommandButton label="Upload" onClick={() => fileInputRef.current?.click()}>
-                <Upload size={16} />
-              </CommandButton>
-              <CommandButton label="Clear" disabled={!hasValue && homepageOutput.kind === 'empty'} onClick={clearValue}>
-                <Trash2 size={16} />
-              </CommandButton>
-              <input
-                ref={fileInputRef}
-                className="visually-hidden"
-                type="file"
-                accept="application/json,.json"
-                onChange={(event) => {
-                  void handleFile(event.target.files?.[0])
-                  event.currentTarget.value = ''
-                }}
-              />
-            </div>
-
             <div className="home-tool-layout">
               <section className="editor-panel home-input-panel" aria-label="JSON input">
                 <div className="panel-toolbar">
@@ -400,6 +372,34 @@ function App() {
                   <span>Source stays unchanged</span>
                 </div>
               </section>
+
+              <div className="workspace-actions" role="toolbar" aria-label="JSON actions">
+                <CommandButton label="Format JSON" primary disabled={!hasValue} onClick={() => handleHomepageAction('format')}>
+                  <Wand2 size={16} />
+                </CommandButton>
+                <CommandButton label="Validate" disabled={!hasValue} onClick={() => handleHomepageAction('validate')}>
+                  <Check size={16} />
+                </CommandButton>
+                <CommandButton label="Minify" disabled={!hasValue} onClick={() => handleHomepageAction('minify')}>
+                  <Minimize2 size={16} />
+                </CommandButton>
+                <CommandButton label="Upload" onClick={() => fileInputRef.current?.click()}>
+                  <Upload size={16} />
+                </CommandButton>
+                <CommandButton label="Clear" disabled={!hasValue && homepageOutput.kind === 'empty'} onClick={clearValue}>
+                  <Trash2 size={16} />
+                </CommandButton>
+                <input
+                  ref={fileInputRef}
+                  className="visually-hidden"
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={(event) => {
+                    void handleFile(event.target.files?.[0])
+                    event.currentTarget.value = ''
+                  }}
+                />
+              </div>
 
               <HomepageOutputPanel
                 output={homepageOutput}

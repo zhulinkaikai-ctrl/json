@@ -152,18 +152,6 @@ h1 {
   box-shadow: 0 18px 48px rgba(20, 66, 58, 0.10);
 }
 
-.home-commandbar {
-  min-height: 58px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid #d7e5df;
-  border-bottom: 0;
-  background: #f4faf8;
-}
-
 .command-button {
   min-height: 36px;
   display: inline-flex;
@@ -204,7 +192,7 @@ h1 {
 
 .home-tool-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 178px minmax(0, 1fr);
   min-height: 620px;
   border: 1px solid #d7e5df;
   background: #ffffff;
@@ -213,6 +201,23 @@ h1 {
 
 .home-input-panel {
   min-width: 0;
+}
+
+.workspace-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 12px;
+  border-left: 1px solid #d7e5df;
+  border-right: 1px solid #d7e5df;
+  background: #f4faf8;
+}
+
+.workspace-actions .command-button {
+  width: 100%;
+  justify-content: flex-start;
+  min-height: 40px;
 }
 
 .editor-panel { min-width: 0; display: flex; flex-direction: column; }
@@ -303,7 +308,7 @@ h1 {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  border-left: 1px solid #d7e5df;
+  border-left: 0;
   background: #fbfefd;
 }
 
@@ -1095,6 +1100,20 @@ h1 {
   .editor-panel { min-height: 510px; }
   .diagnostic-panel { min-height: 330px; border-top: 1px solid #d7e5df; border-left: 0; }
   .output-panel { min-height: 430px; border-top: 1px solid #d7e5df; border-left: 0; }
+  .workspace-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid #d7e5df;
+    border-bottom: 1px solid #d7e5df;
+    border-left: 0;
+    border-right: 0;
+  }
+  .workspace-actions .command-button {
+    flex: 1 1 135px;
+    justify-content: center;
+  }
   .faq { grid-template-columns: 1fr; gap: 24px; }
   .guides-band, .tool-entry-band, .entry-guides { grid-template-columns: 1fr; gap: 20px; }
   .guide-links, .guide-card-grid, .tool-card-grid, .tool-entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1110,10 +1129,9 @@ h1 {
   .intro { display: block; }
   .input-stats { margin-top: 17px; }
   .panel-toolbar { align-items: flex-start; height: auto; min-height: 88px; padding: 12px; }
-  .home-commandbar { align-items: stretch; }
-  .command-button { flex: 1 1 135px; justify-content: center; }
   .editor-label { padding-top: 7px; }
   .toolbar-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .output-panel { border-top: 0; }
   .output-toolbar {
     align-items: flex-start;
     flex-direction: column;
