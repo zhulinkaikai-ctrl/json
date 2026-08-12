@@ -37,17 +37,10 @@ import {
   type HomepageAction,
   type HomepageOutput,
 } from './lib/homepageWorkspace'
+import { DEFAULT_JSON_SAMPLE } from './lib/homepageSample'
 import { getToolPageContext, isWorkspaceRoute } from './lib/toolPageContext'
 
-const INITIAL_SAMPLE = `{
-  "service": "JSON Error Finder",
-  "version": 1,
-  "privacy": {
-    "localOnly": true,
-    "storesInput": false
-  },
-  "features": ["format", "minify", "diagnose"]
-}`
+const INITIAL_SAMPLE = DEFAULT_JSON_SAMPLE
 
 type ToolState = 'empty' | 'editing' | 'valid' | 'invalid' | 'oversize' | 'file-error'
 type Toast = { message: string; tone: 'success' | 'error' } | null
@@ -78,7 +71,7 @@ const toolLinks = [
 function App() {
   const usesTwoPanelWorkspace = isWorkspaceRoute(window.location.pathname)
   const pageContext = getToolPageContext(window.location.pathname)
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState(DEFAULT_JSON_SAMPLE)
   const [homepageOutput, setHomepageOutput] = useState<HomepageOutput>(EMPTY_HOMEPAGE_OUTPUT)
   const [toolState, setToolState] = useState<ToolState>('empty')
   const [diagnostic, setDiagnostic] = useState<JsonDiagnostic | null>(null)
