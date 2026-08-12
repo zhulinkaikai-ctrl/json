@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 export const SITE_URL = 'https://jsonfmt.org'
 export const SITE_NAME = 'JSONFmt'
 export const CONTACT_EMAIL = 'zhulinkaikai@gmail.com'
+const CLOUDFLARE_WEB_ANALYTICS_TOKEN = '1247ce6193f744b0b365cd24ef117245'
 
 const today = '2026-08-11'
 
@@ -802,6 +803,7 @@ export function renderStaticPage(page, options = {}) {
   const scriptLinks = options.scriptLinks ?? []
   const jsonLd = getStructuredData(page)
   const searchConsoleVerificationMeta = getSearchConsoleVerificationMeta()
+  const cloudflareWebAnalyticsScript = getCloudflareWebAnalyticsScript()
   const body = page.kind === 'tool'
     ? `<div id="root">${renderStaticBody(page)}</div>
     ${scriptLinks.map((href) => `<script type="module" crossorigin src="${href}"></script>`).join('\n    ')}`
@@ -832,6 +834,7 @@ export function renderStaticPage(page, options = {}) {
   </head>
   <body>
     ${body}
+    ${cloudflareWebAnalyticsScript}
   </body>
 </html>
 `
@@ -842,6 +845,12 @@ function getSearchConsoleVerificationMeta() {
   if (!token) return ''
 
   return `<meta name="google-site-verification" content="${escapeHtml(token)}">`
+}
+
+function getCloudflareWebAnalyticsScript() {
+  if (!CLOUDFLARE_WEB_ANALYTICS_TOKEN) return ''
+
+  return `<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "${CLOUDFLARE_WEB_ANALYTICS_TOKEN}"}'></script><!-- End Cloudflare Web Analytics -->`
 }
 
 export function buildSitemapXml() {

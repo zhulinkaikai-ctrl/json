@@ -69,6 +69,8 @@ describe('V3 static page registry', () => {
     expect(html).toContain('href="/privacy/"')
     expect(html).toContain('href="/terms/"')
     expect(html).toContain('href="/contact/"')
+    expect(html).toContain('https://static.cloudflareinsights.com/beacon.min.js')
+    expect(html).toContain('1247ce6193f744b0b365cd24ef117245')
   })
 
   it('keeps every guide within the V2 target word-count range', () => {
