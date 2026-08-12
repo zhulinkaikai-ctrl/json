@@ -61,6 +61,7 @@ describe('V3 static page registry', () => {
 
     expect(html).toContain('id="root"')
     expect(html).toContain('type="module"')
+    expect(html).toContain('<meta name="robots" content="index,follow">')
     expect(html).toContain('"@type":"SoftwareApplication"')
     expect(html).toContain('"@type":"BreadcrumbList"')
     expect(html).toContain('Related JSON tools')
@@ -98,5 +99,25 @@ describe('V3 static page registry', () => {
   it('builds robots.txt pointing to the generated sitemap', () => {
     expect(buildRobotsTxt()).toContain('Allow: /')
     expect(buildRobotsTxt()).toContain(`${SITE_URL}/sitemap.xml`)
+  })
+
+  it('renders Search Console verification metadata only when configured', () => {
+    const originalVerificationToken = process.env.GOOGLE_SITE_VERIFICATION
+
+    try {
+      delete process.env.GOOGLE_SITE_VERIFICATION
+      expect(renderStaticPage(TOOL_PAGES[0])).not.toContain('google-site-verification')
+
+      process.env.GOOGLE_SITE_VERIFICATION = 'search-console-token'
+      expect(renderStaticPage(TOOL_PAGES[0])).toContain(
+        '<meta name="google-site-verification" content="search-console-token">',
+      )
+    } finally {
+      if (originalVerificationToken === undefined) {
+        delete process.env.GOOGLE_SITE_VERIFICATION
+      } else {
+        process.env.GOOGLE_SITE_VERIFICATION = originalVerificationToken
+      }
+    }
   })
 })

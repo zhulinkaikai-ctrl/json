@@ -6,7 +6,7 @@ export const SITE_URL = 'https://jsonfmt.org'
 export const SITE_NAME = 'JSONFmt'
 export const CONTACT_EMAIL = 'zhulinkaikai@gmail.com'
 
-const today = '2026-08-07'
+const today = '2026-08-11'
 
 export const GUIDE_PAGES = [
   guide({
@@ -801,6 +801,7 @@ export function renderStaticPage(page, options = {}) {
   const cssLinks = options.cssLinks ?? []
   const scriptLinks = options.scriptLinks ?? []
   const jsonLd = getStructuredData(page)
+  const searchConsoleVerificationMeta = getSearchConsoleVerificationMeta()
   const body = page.kind === 'tool'
     ? `<div id="root">${renderStaticBody(page)}</div>
     ${scriptLinks.map((href) => `<script type="module" crossorigin src="${href}"></script>`).join('\n    ')}`
@@ -817,6 +818,8 @@ export function renderStaticPage(page, options = {}) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(page.title)}</title>
     <meta name="description" content="${escapeHtml(page.description)}">
+    <meta name="robots" content="index,follow">
+    ${searchConsoleVerificationMeta}
     <link rel="canonical" href="${page.canonical}">
     <meta property="og:type" content="${page.kind === 'guide' ? 'article' : 'website'}">
     <meta property="og:site_name" content="${SITE_NAME}">
@@ -832,6 +835,13 @@ export function renderStaticPage(page, options = {}) {
   </body>
 </html>
 `
+}
+
+function getSearchConsoleVerificationMeta() {
+  const token = process.env.GOOGLE_SITE_VERIFICATION?.trim()
+  if (!token) return ''
+
+  return `<meta name="google-site-verification" content="${escapeHtml(token)}">`
 }
 
 export function buildSitemapXml() {
