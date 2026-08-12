@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
 
 import {
   GUIDE_PAGES,
@@ -17,7 +18,7 @@ describe('V3 static page registry', () => {
   it('defines the expected canonical site URL and entry-page route count', () => {
     expect(SITE_URL).toBe('https://jsonfmt.org')
     expect(PAGE_ROUTES.length).toBeGreaterThanOrEqual(25)
-    expect(GUIDE_PAGES).toHaveLength(10)
+    expect(GUIDE_PAGES).toHaveLength(13)
     expect(TOOL_PAGES).toHaveLength(8)
     expect(TRUST_PAGES).toHaveLength(4)
     expect(TOOLS_INDEX.path).toBe('/tools/')
@@ -33,6 +34,12 @@ describe('V3 static page registry', () => {
       '/json-error-finder/',
       '/fix-invalid-json/',
       '/json-viewer/',
+    ]))
+
+    expect(GUIDE_PAGES.map((page) => page.path)).toEqual(expect.arrayContaining([
+      '/guides/unexpected-end-of-json-input/',
+      '/guides/bad-control-character-in-json/',
+      '/guides/missing-comma-in-json/',
     ]))
   })
 
@@ -71,6 +78,39 @@ describe('V3 static page registry', () => {
     expect(html).toContain('href="/contact/"')
     expect(html).toContain('https://static.cloudflareinsights.com/beacon.min.js')
     expect(html).toContain('1247ce6193f744b0b365cd24ef117245')
+  })
+
+  it('keeps tool pages mapped to unique keywords with useful FAQ depth', () => {
+    const primaryKeywords = new Set()
+
+    for (const page of TOOL_PAGES) {
+      expect(page.title.length, page.slug).toBeGreaterThanOrEqual(38)
+      expect(page.title.length, page.slug).toBeLessThanOrEqual(62)
+      expect(page.heading.toLowerCase(), page.slug).toContain(page.primaryKeyword)
+      expect(page.summary.toLowerCase(), page.slug).toContain(page.primaryKeyword)
+      expect(page.description.toLowerCase(), page.slug).toContain(page.primaryKeyword)
+      expect(page.faq.length, page.slug).toBeGreaterThanOrEqual(4)
+      expect(page.faq.length, page.slug).toBeLessThanOrEqual(6)
+      expect(primaryKeywords.has(page.primaryKeyword), page.slug).toBe(false)
+      primaryKeywords.add(page.primaryKeyword)
+    }
+  })
+
+  it('documents the keyword map for every core tool page and first long-tail batch', () => {
+    const keywordMap = readFileSync(new URL('../docs/seo-keyword-map.md', import.meta.url), 'utf8')
+
+    for (const page of TOOL_PAGES) {
+      expect(keywordMap).toContain(page.path)
+      expect(keywordMap).toContain(`Primary: ${page.primaryKeyword}`)
+    }
+
+    for (const slug of [
+      'unexpected-end-of-json-input',
+      'bad-control-character-in-json',
+      'missing-comma-in-json',
+    ]) {
+      expect(keywordMap).toContain(`/guides/${slug}/`)
+    }
   })
 
   it('keeps every guide within the V2 target word-count range', () => {

@@ -390,15 +390,144 @@ GUIDE_PAGES.push(
       ['What is the safest JSON workflow?', 'Validate first, format for review, and minify only when compact output is needed.'],
     ],
   }),
+  guide({
+    slug: 'unexpected-end-of-json-input',
+    title: 'Unexpected End of JSON Input: Causes and Fixes',
+    description: 'Learn why unexpected end of JSON input happens, how to find the missing closing quote, brace, or bracket, and how to validate the fixed JSON.',
+    summary: 'Unexpected end of JSON input means the parser reached the end before the JSON document was complete.',
+    primaryKeyword: 'unexpected end of JSON input',
+    invalidCode: `{
+  "service": "billing",
+  "enabled": true,
+  "regions": [
+    "us-east",
+    "eu-west"
+  ]
+`,
+    fixedCode: `{
+  "service": "billing",
+  "enabled": true,
+  "regions": [
+    "us-east",
+    "eu-west"
+  ]
+}`,
+    sections: [
+      section('What unexpected end of JSON input means', [
+        'Unexpected end of JSON input means a strict JSON parser reached the end of the text while it was still waiting for something else. The missing piece is often a closing brace, closing bracket, or closing double quote. The parser cannot finish because the document ends before the current object, array, or string is complete.',
+        'This article is for developers who see the error in a browser console, Node.js script, API client, build step, or online validator. Start at the end of the payload, then move backward through the nearest open structure. The fix is usually to restore the missing closing character rather than changing the values themselves.',
+      ]),
+      section('Common causes in API and log data', [
+        'A truncated response is a common cause. An API may return an incomplete body after a timeout, proxy error, failed stream, or copied log entry. If the JSON starts correctly but stops in the middle of an object or array, the source may not have delivered the complete payload.',
+        'Manual edits also create this error. A developer may delete the final property and accidentally remove the closing brace, paste only part of a response, or copy a string without its ending quote. Minified one-line JSON makes this harder to spot because the final missing character is visually small.',
+      ]),
+      section('How to find the missing close', [
+        'Look at the last meaningful character in the input. If the document ends after a comma, property name, colon, or open bracket, the JSON is unfinished. Then check whether each opening `{`, `[`, and `"` has a matching closing character. Indentation in a formatted version can help, but you need valid syntax before a formatter can safely run.',
+        'In the example above, the array is closed but the outer object is not. Adding the final `}` completes the document. If the error comes from an unclosed string, add the missing quote or escape a quote inside the value with `\\"` if that quote belongs in the string.',
+      ]),
+      section('Validate the whole document after repair', [
+        'Do not validate only the last line after making the repair. The missing closing character may have hidden another syntax problem earlier in the document. Paste the full payload into JSONFmt, run validation, and then format the result once the syntax passes.',
+        'If the same error keeps returning from an API response, check the raw HTTP status, response body, and content type. The fix may be in the producer that generated or transported the JSON, not in the consumer that tried to parse it.',
+      ]),
+      section('Prevent the error in generated JSON', [
+        'When JSON is created by application code, prefer a serializer over string concatenation. A serializer keeps braces, brackets, quotes, and escape sequences balanced even when optional fields are added or removed. That reduces the chance that a generated payload ends halfway through a structure.',
+        'For files that people edit manually, keep the formatted version in source control and validate it in tests or CI. A complete formatted file makes the final closing character visible during review, while automated validation catches accidental truncation before the file reaches production.',
+      ]),
+    ],
+    faq: [
+      ['What causes unexpected end of JSON input?', 'It usually means the JSON ended before an object, array, or string was closed. Truncated responses and incomplete manual copies are common causes.'],
+      ['How do I fix unexpected end of JSON input?', 'Check the end of the payload and add the missing closing brace, bracket, or quote that completes the open structure.'],
+      ['Can a formatter fix this error automatically?', 'A formatter needs valid JSON first. Fix the incomplete syntax, validate again, then format the repaired document.'],
+    ],
+  }),
+  guide({
+    slug: 'bad-control-character-in-json',
+    title: 'Bad Control Character in JSON: What It Means',
+    description: 'Fix bad control character in JSON errors by finding raw line breaks, tabs, or unescaped characters inside string values.',
+    summary: 'A bad control character in JSON usually means a raw newline, tab, or other unescaped control character appears inside a string.',
+    primaryKeyword: 'bad control character in JSON',
+    invalidCode: `{
+  "message": "First line
+Second line",
+  "status": "open"
+}`,
+    fixedCode: `{
+  "message": "First line\\nSecond line",
+  "status": "open"
+}`,
+    sections: [
+      section('What bad control character in JSON means', [
+        'Bad control character in JSON means the parser found a character that cannot appear literally at that position. The most common case is a real line break inside a quoted string. JSON strings can represent a line break, but they must use an escape sequence such as `\\n` instead of an actual newline inside the quotes.',
+        'This article is for developers copying logs, messages, stack traces, or text fields into JSON. The data may look readable in an editor, but strict JSON requires control characters inside strings to be escaped so parsers in different languages interpret the value consistently.',
+      ]),
+      section('Where control characters appear', [
+        'Control character errors often come from multiline text, pasted tabs, carriage returns, and generated strings that were not passed through a JSON serializer. A raw newline inside `"message": "..."` breaks JSON because the string boundary is no longer represented in a portable way.',
+        'Tabs inside strings have the same problem when they are literal tab characters. Use `\\t` when the value needs a tab and `\\r\\n` or `\\n` when the value needs a line break. Whitespace outside strings can remain normal indentation and line breaks.',
+      ]),
+      section('How to fix the string safely', [
+        'First, locate the quoted string mentioned near the error. If the string spans multiple visible lines, replace the actual line break with `\\n`. If it contains a literal tab, replace that tab with `\\t`. Do not remove meaningful spaces inside the value unless the receiving system truly does not need them.',
+        'Use a real JSON serializer when the content is generated by code. For example, `JSON.stringify` in JavaScript escapes control characters for you. Manual escaping is useful for small repairs, but generated logs and messages should be serialized before they are sent or stored as JSON.',
+      ]),
+      section('Check the parsed value after validation', [
+        'After replacing raw control characters with escape sequences, validate the whole JSON document. Then inspect how the receiving application reads the value. The escape sequence `\\n` represents a line break in the parsed string; it is not meant to display as backslash and n unless another layer treats it as plain text.',
+        'If the input came from an API response, check whether the producer is building JSON through string concatenation. That pattern often causes escaping mistakes. A serializer-backed output step is safer because it handles quotes, backslashes, and control characters consistently.',
+      ]),
+    ],
+    faq: [
+      ['What is a bad control character in JSON?', 'It is an unescaped control character, such as a raw newline or tab, in a place where strict JSON syntax does not allow it.'],
+      ['How do I put a line break in a JSON string?', 'Use the escape sequence `\\n` inside the string instead of a literal line break.'],
+      ['Can indentation cause this error?', 'Normal indentation outside strings is fine. The error usually happens when control characters appear inside quoted string values.'],
+    ],
+  }),
+  guide({
+    slug: 'missing-comma-in-json',
+    title: 'Missing Comma in JSON: How to Spot the Error',
+    description: 'Learn how missing comma in JSON errors happen, why parsers often point at the next key, and how to fix object and array separators.',
+    summary: 'A missing comma in JSON usually appears between two object properties or array values that should be separated.',
+    primaryKeyword: 'missing comma in JSON',
+    invalidCode: `{
+  "name": "Ada"
+  "role": "Engineer",
+  "active": true
+}`,
+    fixedCode: `{
+  "name": "Ada",
+  "role": "Engineer",
+  "active": true
+}`,
+    sections: [
+      section('What missing comma in JSON means', [
+        'Missing comma in JSON means two values appear next to each other without the separator strict JSON requires. In an object, each property after the first must be separated from the previous property by a comma. In an array, each item after the first must also be separated by a comma.',
+        'This article is for developers who see an unexpected token near a property name, quote, number, or bracket. The highlighted character is often the next valid-looking value. The real mistake is usually just before it, where the previous value ended without a comma.',
+      ]),
+      section('Why the parser points at the next key', [
+        'In the example above, `"name": "Ada"` is valid by itself. The parser then sees `"role"` immediately after the string value. Because a JSON object needs a comma between properties, the quote before `role` becomes unexpected. The parser reports where it became confused, not always where the comma should be inserted.',
+        'This is why missing comma errors are easier to find when the document is formatted. Each property sits on its own line, so you can check whether the previous line ended with a comma unless it is the final property in that object.',
+      ]),
+      section('How to fix object and array separators', [
+        'Add a comma after the previous complete value, not before the next key. For object properties, the comma goes after the value and before the next property name. For arrays, the comma goes after the previous item and before the next item.',
+        'Do not add a comma after the final property or final array item. That creates a different error: a trailing comma. A useful rule is simple: commas go between values, not before the first value and not after the last value.',
+      ]),
+      section('Use formatting after validation passes', [
+        'After adding the missing comma, validate the full document again. If another property was also missing a separator, the parser may now be able to reach that later location. Continue one repair at a time until validation passes.',
+        'Once the JSON is valid, format it. The formatted layout creates a visual checklist for future edits, especially in configuration files and test fixtures where missing commas often appear after manual changes.',
+      ]),
+    ],
+    faq: [
+      ['Where do commas go in JSON?', 'Commas go between object properties and between array items. They do not go before the first item or after the final item.'],
+      ['Why does a missing comma show as unexpected token?', 'The parser often notices the problem only when it reaches the next key or value that should have been separated by a comma.'],
+      ['Can a JSON formatter add missing commas?', 'A formatter requires valid JSON first. Add the missing comma, validate, and then format the corrected document.'],
+    ],
+  }),
 )
 
 export const TOOL_PAGES = [
   tool({
     slug: 'json-formatter',
     title: 'JSON Formatter Online - Format JSON Locally',
-    description: 'Format JSON online in your browser. Make valid JSON readable with clean indentation without uploading or storing your data.',
+    description: 'Use a JSON formatter online in your browser. Make valid JSON readable with clean indentation without uploading or storing your data.',
     heading: 'JSON formatter',
-    summary: 'Paste valid JSON, format it into a readable structure, and keep the entire workflow in your browser.',
+    summary: 'Use this JSON formatter to paste valid JSON, create a readable structure, and keep the entire workflow in your browser.',
     primaryKeyword: 'json formatter',
     action: 'Format JSON',
     sections: [
@@ -410,19 +539,24 @@ export const TOOL_PAGES = [
         'Formatting is useful for API responses, test fixtures, configuration files, and copied request bodies that arrive on one long line.',
         'It changes presentation only. Keys, values, arrays, and object structure remain the same after formatting.',
       ]),
+      section('Use the formatted output for review', [
+        'A JSON formatter is most useful after the syntax is already valid. Format the payload, scan the indentation, and check whether nested objects or arrays sit where you expected.',
+        'If the formatted shape looks wrong, validate the source again and compare it with the API contract or configuration documentation before copying the output into another system.',
+      ]),
     ],
     faq: [
       ['Is this JSON formatter private?', 'Yes. JSONFmt processes JSON locally in your browser and does not upload it.'],
       ['Can I format invalid JSON?', 'Fix the reported syntax issue first, then format the valid JSON.'],
       ['Does formatting change JSON values?', 'No. It changes whitespace and indentation only.'],
+      ['When should I use a JSON formatter?', 'Use it when valid JSON is compact, nested, or difficult to review on one line.'],
     ],
   }),
   tool({
     slug: 'json-validator',
     title: 'JSON Validator Online - Check JSON Syntax Locally',
-    description: 'Validate JSON online in your browser. Find strict JSON syntax errors with line, column, and fix guidance without uploading your data.',
+    description: 'Use a JSON validator online in your browser. Find strict JSON syntax errors with line, column, and fix guidance without uploading your data.',
     heading: 'JSON validator',
-    summary: 'Check whether JSON is valid, locate the first syntax error, and get a clear explanation before sending the data anywhere.',
+    summary: 'Use this JSON validator to check whether JSON is valid, locate the first syntax error, and get a clear explanation before sending data anywhere.',
     primaryKeyword: 'json validator',
     action: 'Validate JSON',
     sections: [
@@ -434,11 +568,16 @@ export const TOOL_PAGES = [
         'Run validation before pasting a payload into an API client, committing a JSON config file, or passing text into JSON.parse.',
         'Syntax validation confirms the document can be parsed; schema and application rules should be checked separately when they apply.',
       ]),
+      section('Separate syntax from schema rules', [
+        'A JSON validator confirms that the text follows strict JSON syntax. It does not decide whether an API expects a field, whether a number is in range, or whether a value matches your business rules.',
+        'After the syntax passes, use your API schema, tests, or application validation to check the meaning of the data.',
+      ]),
     ],
     faq: [
       ['What does a JSON validator check?', 'It checks strict JSON syntax, including quotes, commas, strings, brackets, and full document structure.'],
       ['Does JSONFmt validate JSON5?', 'No. JSONFmt validates strict standard JSON only.'],
       ['Is JSON input stored?', 'No. The browser processes the input locally.'],
+      ['Can valid JSON still fail an API?', 'Yes. Valid JSON can still fail schema, authentication, content-type, or application-specific checks.'],
     ],
   }),
   tool({
@@ -446,7 +585,7 @@ export const TOOL_PAGES = [
     title: 'JSON Minifier Online - Minify JSON Locally',
     description: 'Minify valid JSON online in your browser. Remove unnecessary whitespace without changing the data or uploading your JSON.',
     heading: 'JSON minifier',
-    summary: 'Compact valid JSON by removing indentation and unnecessary whitespace while preserving the exact parsed data.',
+    summary: 'Use this JSON minifier to compact valid JSON by removing indentation and unnecessary whitespace while preserving the exact parsed data.',
     primaryKeyword: 'json minifier',
     action: 'Minify JSON',
     sections: [
@@ -458,19 +597,24 @@ export const TOOL_PAGES = [
         'Invalid JSON cannot be safely minified because the parser cannot identify which spaces or characters belong to the data structure.',
         'Fix the first syntax issue, validate again, then use the minify action to create a compact local result.',
       ]),
+      section('Keep a readable source when people edit it', [
+        'A JSON minifier is best used at the final output boundary. Keep a formatted source for code review, documentation, or configuration work when humans will need to make changes later.',
+        'If the compact output is copied into another tool, validate it once more after the copy step so whitespace removal did not hide a transfer mistake.',
+      ]),
     ],
     faq: [
       ['Does minifying JSON remove spaces inside strings?', 'No. A safe minifier preserves every string value exactly.'],
       ['Can I format minified JSON again?', 'Yes. Any valid minified JSON can be formatted into a readable layout.'],
       ['Is the minifier browser-local?', 'Yes. JSONFmt does not upload the JSON you minify.'],
+      ['When should I minify JSON?', 'Minify JSON when compact size matters more than direct human readability.'],
     ],
   }),
   tool({
     slug: 'json-beautifier',
     title: 'JSON Beautifier Online - Beautify JSON Locally',
-    description: 'Beautify JSON online with readable indentation and local browser processing. Validate and clean up valid JSON without uploads.',
+    description: 'Use a JSON beautifier online with readable indentation and local browser processing. Clean up valid JSON without uploads.',
     heading: 'JSON beautifier',
-    summary: 'Beautify valid JSON into a clean, readable layout for debugging, review, and configuration work.',
+    summary: 'Use this JSON beautifier to turn valid JSON into a clean, readable layout for debugging, review, and configuration work.',
     primaryKeyword: 'json beautifier',
     action: 'Beautify JSON',
     sections: [
@@ -482,19 +626,24 @@ export const TOOL_PAGES = [
         'A parser-backed tool works from the actual JSON structure, so it will stop and report syntax problems rather than rearranging invalid text.',
         'JSONFmt keeps your input local and provides a direct error explanation when the content needs repair before beautification.',
       ]),
+      section('Beautify after fixing syntax errors', [
+        'A JSON beautifier should not guess how invalid text was meant to look. It should parse the document first, then produce clean indentation from the actual object or array structure.',
+        'If the parser reports an error, repair the first syntax issue and run beautify again after the JSON becomes valid.',
+      ]),
     ],
     faq: [
       ['Is JSON beautifier different from JSON formatter?', 'They describe the same core task: making valid JSON readable with indentation.'],
       ['Can a beautifier repair invalid JSON?', 'JSONFmt explains the syntax issue and lets you repair it manually first.'],
       ['Does beautifying JSON change the object structure?', 'No. It changes only the visible whitespace.'],
+      ['Why use a JSON beautifier?', 'Use it when copied JSON is valid but too dense to inspect, compare, or share in a readable way.'],
     ],
   }),
   tool({
     slug: 'json-pretty-print',
     title: 'JSON Pretty Print Online - Readable JSON Locally',
-    description: 'Pretty print JSON online in your browser. Turn valid compact JSON into an indented, readable document without uploading it.',
+    description: 'Use JSON pretty print online in your browser. Turn valid compact JSON into an indented, readable document without uploading it.',
     heading: 'JSON pretty print',
-    summary: 'Pretty print valid JSON into an organized layout that is easier to scan, debug, and review.',
+    summary: 'Use JSON pretty print to turn valid JSON into an organized layout that is easier to scan, debug, and review.',
     primaryKeyword: 'json pretty print',
     action: 'Pretty print JSON',
     sections: [
@@ -506,19 +655,24 @@ export const TOOL_PAGES = [
         'Pretty printing changes whitespace around the JSON structure but leaves values and property names intact.',
         'JSONFmt validates first, so you do not receive a polished-looking document that still fails a strict JSON parser.',
       ]),
+      section('Read nested data faster', [
+        'JSON pretty print output makes each object level and array item visible. That helps when you need to find one nested field in a large API response or explain a payload during a review.',
+        'Copy the pretty printed output when readability matters, or use the minifier when the next step needs a compact single-line result.',
+      ]),
     ],
     faq: [
       ['What is JSON pretty print?', 'It is formatting valid JSON with indentation and line breaks for easier reading.'],
       ['Can I pretty print an API response?', 'Yes, as long as the response body is valid strict JSON.'],
       ['Will pretty printing upload my JSON?', 'No. JSONFmt processes it in your browser.'],
+      ['Is pretty printed JSON still valid?', 'Yes. Pretty printing keeps the same parsed data and changes only whitespace outside strings.'],
     ],
   }),
   tool({
     slug: 'json-error-finder',
     title: 'JSON Error Finder - Locate and Fix Invalid JSON',
-    description: 'Find JSON syntax errors with line and column guidance. Diagnose invalid strict JSON locally in your browser without uploads.',
+    description: 'Use JSON error finder guidance with line and column details. Diagnose invalid strict JSON locally in your browser without uploads.',
     heading: 'JSON error finder',
-    summary: 'Locate the first JSON syntax error, understand why it happened, and repair the text without sending it to a server.',
+    summary: 'Use this JSON error finder to locate the first JSON syntax error, understand why it happened, and repair the text without sending it to a server.',
     primaryKeyword: 'json error finder',
     action: 'Find JSON errors',
     sections: [
@@ -530,11 +684,16 @@ export const TOOL_PAGES = [
         'Fix one reported issue, validate again, and repeat until the full document is valid. One missing quote or comma can hide later problems.',
         'The tool does not auto-rewrite your JSON, so you keep control of values that may be sensitive or business-critical.',
       ]),
+      section('Use the context before changing data', [
+        'A JSON error finder should make the next edit smaller, not encourage a broad rewrite. Check the nearby context, the previous line, and the surrounding braces before changing values.',
+        'After one repair, run validation again because the parser can only report later syntax issues after the first blocking error is fixed.',
+      ]),
     ],
     faq: [
       ['Why does JSONFmt show only one error at a time?', 'A parser must recover from the first syntax error before it can reliably inspect later text.'],
       ['Can it find trailing commas?', 'Yes. JSONFmt classifies several common strict JSON syntax patterns.'],
       ['Does the error finder upload API payloads?', 'No. Processing happens locally in the browser.'],
+      ['What errors can JSON error finder explain?', 'It explains common issues such as missing commas, trailing commas, single quotes, comments, unclosed strings, and unquoted keys.'],
     ],
   }),
   tool({
@@ -542,7 +701,7 @@ export const TOOL_PAGES = [
     title: 'Fix Invalid JSON - Diagnose JSON Syntax Errors',
     description: 'Fix invalid JSON with local syntax diagnostics, line and column locations, and practical repair guidance for common strict JSON errors.',
     heading: 'Fix invalid JSON',
-    summary: 'Diagnose invalid JSON, understand the parser message, and make the smallest correct repair in your browser.',
+    summary: 'Fix invalid JSON by diagnosing the parser message, understanding the cause, and making the smallest correct repair in your browser.',
     primaryKeyword: 'fix invalid json',
     action: 'Diagnose JSON',
     sections: [
@@ -554,19 +713,24 @@ export const TOOL_PAGES = [
         'The safest fix is a small manual change followed by another validation pass. Blind replacements can change apostrophes, string values, or object structure.',
         'JSONFmt keeps all repair work local and gives you the context needed to decide what the input was meant to say.',
       ]),
+      section('Fix syntax before formatting', [
+        'Invalid JSON must become parseable before it can be formatted, minified, or viewed as a structure. Start with the first error and avoid changing unrelated parts of the payload.',
+        'Once validation passes, format the repaired JSON and inspect the shape before using it in an API request, config file, or test fixture.',
+      ]),
     ],
     faq: [
       ['Can JSONFmt automatically fix JSON?', 'No. It identifies likely syntax issues and lets you make the intended repair yourself.'],
       ['What causes invalid JSON most often?', 'Missing commas, trailing commas, single quotes, comments, and unmatched brackets are common causes.'],
       ['Can I fix a large JSON file here?', 'JSONFmt supports browser-local JSON input up to 10 MB.'],
+      ['Should I format invalid JSON first?', 'No. Fix invalid JSON syntax first, then format the valid result for review.'],
     ],
   }),
   tool({
     slug: 'json-viewer',
     title: 'JSON Viewer Online - Validate and Read JSON Locally',
-    description: 'View JSON locally in your browser. Validate and format valid JSON into a readable structure without uploads or storage.',
+    description: 'Use a JSON viewer locally in your browser. Validate and format valid JSON into a readable structure without uploads or storage.',
     heading: 'JSON viewer',
-    summary: 'Open JSON in a readable local workspace, validate the syntax, and format the structure for inspection.',
+    summary: 'Use this JSON viewer to open JSON in a readable local workspace, validate the syntax, and format the structure for inspection.',
     primaryKeyword: 'json viewer',
     action: 'View JSON',
     sections: [
@@ -578,11 +742,16 @@ export const TOOL_PAGES = [
         'A document must be valid strict JSON before it can be reliably displayed as a structured value. Invalid input stays in the editor with a diagnostic rather than being silently guessed at.',
         'For deeply nested documents, formatting first makes object boundaries clearer and creates a practical reading view without sending content outside the browser.',
       ]),
+      section('Inspect before copying onward', [
+        'A JSON viewer gives you a safer pause between receiving data and sending it somewhere else. Review the formatted structure, check the root type, and confirm the field you care about is nested under the expected parent.',
+        'When the text is invalid, switch from viewing to diagnostics and repair the first syntax issue before trusting any structural interpretation.',
+      ]),
     ],
     faq: [
       ['Can JSONFmt display invalid JSON?', 'It displays the text and diagnostic, but a structured view requires valid JSON.'],
       ['Does JSONFmt have a tree viewer?', 'The current viewer focuses on formatted structure and diagnostics; tree navigation is a later enhancement.'],
       ['Is JSON viewing private?', 'Yes. JSONFmt processes the input locally in your browser.'],
+      ['When should I use a JSON viewer?', 'Use it when valid JSON is too nested or compact to inspect comfortably as raw text.'],
     ],
   }),
 ]
