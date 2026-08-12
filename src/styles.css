@@ -206,6 +206,10 @@ h1 {
 }
 
 .workspace-actions {
+  position: sticky;
+  top: 0;
+  align-self: stretch;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -220,6 +224,7 @@ h1 {
   width: 100%;
   justify-content: flex-start;
   min-height: 40px;
+  white-space: nowrap;
 }
 
 .editor-panel { min-width: 0; display: flex; flex-direction: column; }
@@ -1107,18 +1112,24 @@ h1 {
   .diagnostic-panel { min-height: 330px; border-top: 1px solid #d7e5df; border-left: 0; }
   .output-panel { min-height: 430px; border-top: 1px solid #d7e5df; border-left: 0; }
   .workspace-actions {
-    flex-direction: row;
-    flex-wrap: wrap;
+    z-index: 4;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
     padding: 12px;
     border-top: 1px solid #d7e5df;
     border-bottom: 1px solid #d7e5df;
     border-left: 0;
     border-right: 0;
+    box-shadow: 0 10px 24px rgba(20, 66, 58, 0.08);
   }
   .workspace-actions .command-button {
-    flex: 1 1 135px;
+    width: 100%;
     justify-content: center;
+  }
+  .workspace-actions .command-button.primary {
+    grid-column: 1 / -1;
+    min-height: 44px;
   }
   .faq { grid-template-columns: 1fr; gap: 24px; }
   .guides-band, .tool-entry-band, .entry-guides { grid-template-columns: 1fr; gap: 20px; }
@@ -1137,6 +1148,10 @@ h1 {
   .panel-toolbar { align-items: flex-start; height: auto; min-height: 88px; padding: 12px; }
   .editor-label { padding-top: 7px; }
   .toolbar-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .workspace-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    top: 0;
+  }
   .output-panel { border-top: 0; }
   .output-toolbar {
     align-items: flex-start;

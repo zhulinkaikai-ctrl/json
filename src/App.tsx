@@ -591,6 +591,8 @@ function CommandButton({
     <button
       className={`command-button ${primary ? 'primary' : ''}`}
       type="button"
+      aria-label={label}
+      title={label}
       disabled={disabled}
       onClick={onClick}
     >
@@ -665,7 +667,7 @@ function renderHomepageOutputBody(
         <div className="diagnostic-icon quiet"><Braces size={25} /></div>
         <p className="panel-kicker">Output</p>
         <h2>Formatted JSON will appear here.</h2>
-        <p>{inputValue ? 'Choose Format, Validate, or Minify from the toolbar.' : 'Paste JSON to begin.'}</p>
+        <p>{inputValue ? 'Click Format JSON to create a readable output without changing the source.' : 'Paste JSON to begin.'}</p>
         {!inputValue && (
           <button className="sample-button" type="button" onClick={onLoadSample}>
             <Sparkles size={16} /> Load a sample
