@@ -714,6 +714,36 @@ h1 {
   padding-bottom: 60px;
 }
 
+.guide-group {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 14px 0 22px;
+  border-top: 1px solid #dce8e3;
+}
+
+.guide-group:first-of-type {
+  border-top: 0;
+}
+
+.guide-group-heading {
+  max-width: 720px;
+  padding: 16px 0 20px;
+}
+
+.guide-group-heading h2 {
+  margin: 8px 0 8px;
+  color: #17322b;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.guide-group-heading p:not(.eyebrow) {
+  margin: 0;
+  color: #63746d;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .tool-card-grid {
   width: min(1120px, 100%);
   display: grid;
@@ -951,6 +981,13 @@ h1 {
 .article-shell h1 {
   max-width: 820px;
   font-size: 40px;
+}
+
+.article-updated {
+  margin: -4px 0 18px;
+  color: #71847d;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
 }
 
 .article-shell h2 {

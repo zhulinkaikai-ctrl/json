@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 
 import {
+  GUIDE_GROUPS,
+  GUIDES_INDEX,
   GUIDE_PAGES,
   HOME_PAGE,
   PAGE_ROUTES,
@@ -17,8 +19,8 @@ import {
 describe('V3 static page registry', () => {
   it('defines the expected canonical site URL and entry-page route count', () => {
     expect(SITE_URL).toBe('https://jsonfmt.org')
-    expect(PAGE_ROUTES.length).toBeGreaterThanOrEqual(25)
-    expect(GUIDE_PAGES).toHaveLength(13)
+    expect(PAGE_ROUTES.length).toBeGreaterThanOrEqual(33)
+    expect(GUIDE_PAGES).toHaveLength(18)
     expect(TOOL_PAGES).toHaveLength(8)
     expect(TRUST_PAGES).toHaveLength(4)
     expect(TOOLS_INDEX.path).toBe('/tools/')
@@ -40,6 +42,11 @@ describe('V3 static page registry', () => {
       '/guides/unexpected-end-of-json-input/',
       '/guides/bad-control-character-in-json/',
       '/guides/missing-comma-in-json/',
+      '/guides/expected-double-quoted-property-name/',
+      '/guides/json-parse-error/',
+      '/guides/unexpected-token-less-than-in-json/',
+      '/guides/strict-json-vs-json5/',
+      '/guides/is-online-json-formatter-safe/',
     ]))
   })
 
@@ -56,6 +63,7 @@ describe('V3 static page registry', () => {
 
     expect(html).toContain('"@type":"Article"')
     expect(html).toContain('"@type":"FAQPage"')
+    expect(html).toContain('Updated August 12, 2026')
     expect(html).toContain('Try it in JSON Error Finder')
     expect(html).not.toContain('adsbygoogle')
     expect(html).not.toContain('pagead2.googlesyndication.com')
@@ -89,6 +97,7 @@ describe('V3 static page registry', () => {
       expect(page.heading.toLowerCase(), page.slug).toContain(page.primaryKeyword)
       expect(page.summary.toLowerCase(), page.slug).toContain(page.primaryKeyword)
       expect(page.description.toLowerCase(), page.slug).toContain(page.primaryKeyword)
+      expect(page.sections.length, page.slug).toBeGreaterThanOrEqual(4)
       expect(page.faq.length, page.slug).toBeGreaterThanOrEqual(4)
       expect(page.faq.length, page.slug).toBeLessThanOrEqual(6)
       expect(primaryKeywords.has(page.primaryKeyword), page.slug).toBe(false)
@@ -99,7 +108,7 @@ describe('V3 static page registry', () => {
   it('documents the keyword map for every core tool page and first long-tail batch', () => {
     const keywordMap = readFileSync(new URL('../docs/seo-keyword-map.md', import.meta.url), 'utf8')
 
-    for (const page of TOOL_PAGES) {
+    for (const page of [...TOOL_PAGES, ...GUIDE_PAGES]) {
       expect(keywordMap).toContain(page.path)
       expect(keywordMap).toContain(`Primary: ${page.primaryKeyword}`)
     }
@@ -111,6 +120,24 @@ describe('V3 static page registry', () => {
     ]) {
       expect(keywordMap).toContain(`/guides/${slug}/`)
     }
+  })
+
+  it('groups the guides index by search intent and links every guide once', () => {
+    expect(GUIDE_GROUPS.map((group) => group.title)).toEqual([
+      'JSON syntax errors',
+      'Formatting and validation workflows',
+      'Safety and format choices',
+    ])
+
+    const groupedSlugs = GUIDE_GROUPS.flatMap((group) => group.slugs)
+    expect(new Set(groupedSlugs).size).toBe(GUIDE_PAGES.length)
+    expect(groupedSlugs).toEqual(expect.arrayContaining(GUIDE_PAGES.map((page) => page.slug)))
+
+    const html = renderStaticPage(GUIDES_INDEX)
+    expect(html).toContain('JSON syntax errors')
+    expect(html).toContain('Formatting and validation workflows')
+    expect(html).toContain('Safety and format choices')
+    expect(html).toContain('href="/guides/is-online-json-formatter-safe/"')
   })
 
   it('keeps every guide within the V2 target word-count range', () => {
