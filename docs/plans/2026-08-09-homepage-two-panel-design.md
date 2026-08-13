@@ -1,5 +1,7 @@
 # Two-Panel JSON Workspace Design
 
+Chinese version: [2026-08-09-homepage-two-panel-design.zh-CN.md](./2026-08-09-homepage-two-panel-design.zh-CN.md)
+
 ## Goal
 
 Make JSONFmt feel like a formatter first on the homepage and JSON tool pages: users paste source JSON on the left, choose a command, and receive a read-only result on the right.

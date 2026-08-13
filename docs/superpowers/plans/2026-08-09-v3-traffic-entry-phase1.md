@@ -1,5 +1,7 @@
 # V3 Traffic Entry Phase 1 Implementation Plan
 
+Chinese version: [2026-08-09-v3-traffic-entry-phase1.zh-CN.md](./2026-08-09-v3-traffic-entry-phase1.zh-CN.md)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add the V3 Phase 1 crawlable tool-entry network around the existing browser-local JSON editor.
@@ -133,4 +135,3 @@ Expected: build succeeds and generated `dist` contains `/tools/`, core tool page
 Run: `node -e "import('./scripts/generate-static-pages.mjs').then(m => console.log(m.PAGE_ROUTES.map(p => p.path).join('\\n')))"`
 
 Expected: output includes all V3 Phase 1 tool routes and at least 25 total public routes.
-

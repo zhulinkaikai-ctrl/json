@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import {
   GUIDE_GROUPS,
@@ -15,6 +17,11 @@ import {
   buildSitemapXml,
   renderStaticPage,
 } from './generate-static-pages.mjs'
+
+const keywordMapPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../docs/seo-keyword-map.md',
+)
 
 describe('V3 static page registry', () => {
   it('defines the expected canonical site URL and entry-page route count', () => {
@@ -106,7 +113,7 @@ describe('V3 static page registry', () => {
   })
 
   it('documents the keyword map for every core tool page and first long-tail batch', () => {
-    const keywordMap = readFileSync(new URL('../docs/seo-keyword-map.md', import.meta.url), 'utf8')
+    const keywordMap = readFileSync(keywordMapPath, 'utf8')
 
     for (const page of [...TOOL_PAGES, ...GUIDE_PAGES]) {
       expect(keywordMap).toContain(page.path)

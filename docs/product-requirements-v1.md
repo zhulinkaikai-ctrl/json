@@ -1,5 +1,7 @@
 # JSON Error Finder - Product Requirements Document (V1)
 
+Chinese version: [product-requirements-v1.zh-CN.md](./product-requirements-v1.zh-CN.md)
+
 ## 1. Product Summary
 
 JSON Error Finder is an English, privacy-first web tool for developers who need to diagnose invalid JSON quickly. The product is a single-page application whose primary job is to help a user move from invalid JSON to valid JSON without uploading or saving their data.
@@ -90,4 +92,3 @@ The primary anonymous success funnel is:
 - At least 30% of invalid-JSON sessions change from invalid to valid after diagnosis is shown.
 - Automated tests cover core JSON diagnosis, common error classifications, actions, file-input limits, and oversized-input handling.
 - The tool never transmits or stores user JSON content.
-

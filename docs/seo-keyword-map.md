@@ -4,6 +4,8 @@ Updated: 2026-08-12
 
 This map keeps each indexable page focused on one primary keyword so JSONFmt can build topical authority without pages competing against each other.
 
+Chinese version: [seo-keyword-map.zh-CN.md](./seo-keyword-map.zh-CN.md)
+
 ## Core Tool Pages
 
 | URL | Primary | Secondary intent | Search intent | Page role |

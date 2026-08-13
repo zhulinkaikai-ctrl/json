@@ -1,5 +1,7 @@
 # JSONFmt.org V3 Product Requirements: Traffic Entry Expansion
 
+Chinese version: [product-requirements-v3-traffic-entry.zh-CN.md](./product-requirements-v3-traffic-entry.zh-CN.md)
+
 ## 1. Why V3 Exists
 
 JSONFmt currently has a useful core tool and a small set of error guides, but the site has too few search and navigation entry points. A user can land on the homepage or one of a few syntax-error articles, but there is no broad tool matrix for common JSON intents such as formatter, validator, minifier, viewer, escape/unescape, or conversions.
@@ -338,4 +340,3 @@ Track after launch:
 - 500+ total Google Search Console impressions.
 - 100+ organic visits.
 - 30%+ invalid sessions become valid after diagnosis.
-

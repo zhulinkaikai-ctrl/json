@@ -1,5 +1,7 @@
 # Homepage Two-Panel Workspace Implementation Plan
 
+Chinese version: [2026-08-09-homepage-two-panel-workspace.zh-CN.md](./2026-08-09-homepage-two-panel-workspace.zh-CN.md)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the homepage diagnostic sidebar with a command-driven, two-panel JSON input and read-only output workspace.

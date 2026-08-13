@@ -1,5 +1,7 @@
 # V2 AdSense SEO Upgrade Implementation Plan
 
+Chinese version: [2026-08-07-v2-adsense-seo.zh-CN.md](./2026-08-07-v2-adsense-seo.zh-CN.md)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add static SEO and trust pages around the existing JSON tool without changing the V1 tool workflow.
@@ -106,4 +108,3 @@ Expected: production build succeeds and generated static pages exist in `dist`.
 - [ ] **Step 4: Inspect generated files**
 
 Check that `dist/sitemap.xml`, `dist/robots.txt`, `dist/guides/index.html`, article pages, and trust pages exist and contain `https://jsonfmt.org/` canonical links.
-

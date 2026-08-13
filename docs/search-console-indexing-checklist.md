@@ -1,5 +1,7 @@
 # Search Console Indexing Checklist
 
+Chinese version: [search-console-indexing-checklist.zh-CN.md](./search-console-indexing-checklist.zh-CN.md)
+
 Use this checklist after deploying `https://jsonfmt.org/`.
 
 ## 1. Verify The Property

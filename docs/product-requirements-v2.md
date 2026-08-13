@@ -1,5 +1,7 @@
 # JSONFmt.org V2 Product Requirements
 
+Chinese version: [product-requirements-v2.zh-CN.md](./product-requirements-v2.zh-CN.md)
+
 ## Goal
 
 Upgrade `https://jsonfmt.org/` from a single-page JSON utility into an AdSense-ready and SEO-ready English JSON tool site.
@@ -66,4 +68,3 @@ V2 does not move the tool to `/tool/`, replace the homepage with a content landi
 - Each static page has title, description, canonical, and Open Graph tags.
 - Guide pages include Article and FAQ JSON-LD.
 - Homepage keeps the V1 JSON tool and adds V2 navigation/footer links.
-
