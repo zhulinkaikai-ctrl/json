@@ -17,6 +17,7 @@ import {
   buildSitemapXml,
   renderStaticPage,
 } from './generate-static-pages.mjs'
+import { PHASE2_GUIDE_SLUGS } from './phase2-guides.mjs'
 
 const keywordMapPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -26,8 +27,8 @@ const keywordMapPath = path.resolve(
 describe('V3 static page registry', () => {
   it('defines the expected canonical site URL and entry-page route count', () => {
     expect(SITE_URL).toBe('https://jsonfmt.org')
-    expect(PAGE_ROUTES.length).toBeGreaterThanOrEqual(33)
-    expect(GUIDE_PAGES).toHaveLength(18)
+    expect(PAGE_ROUTES.length).toBeGreaterThanOrEqual(53)
+    expect(GUIDE_PAGES).toHaveLength(38)
     expect(TOOL_PAGES).toHaveLength(8)
     expect(TRUST_PAGES).toHaveLength(4)
     expect(TOOLS_INDEX.path).toBe('/tools/')
@@ -55,6 +56,7 @@ describe('V3 static page registry', () => {
       '/guides/strict-json-vs-json5/',
       '/guides/is-online-json-formatter-safe/',
     ]))
+    expect(GUIDE_PAGES.map((page) => page.slug)).toEqual(expect.arrayContaining(PHASE2_GUIDE_SLUGS))
   })
 
   it('uses absolute canonical URLs on every static route', () => {
@@ -112,7 +114,7 @@ describe('V3 static page registry', () => {
     }
   })
 
-  it('documents the keyword map for every core tool page and first long-tail batch', () => {
+  it('documents the keyword map for every core tool page and long-tail guide', () => {
     const keywordMap = readFileSync(keywordMapPath, 'utf8')
 
     for (const page of [...TOOL_PAGES, ...GUIDE_PAGES]) {
@@ -120,11 +122,7 @@ describe('V3 static page registry', () => {
       expect(keywordMap).toContain(`Primary: ${page.primaryKeyword}`)
     }
 
-    for (const slug of [
-      'unexpected-end-of-json-input',
-      'bad-control-character-in-json',
-      'missing-comma-in-json',
-    ]) {
+    for (const slug of PHASE2_GUIDE_SLUGS) {
       expect(keywordMap).toContain(`/guides/${slug}/`)
     }
   })
@@ -134,6 +132,7 @@ describe('V3 static page registry', () => {
       'JSON syntax errors',
       'Formatting and validation workflows',
       'Safety and format choices',
+      'Runtime and serialization errors',
     ])
 
     const groupedSlugs = GUIDE_GROUPS.flatMap((group) => group.slugs)
@@ -144,7 +143,36 @@ describe('V3 static page registry', () => {
     expect(html).toContain('JSON syntax errors')
     expect(html).toContain('Formatting and validation workflows')
     expect(html).toContain('Safety and format choices')
+    expect(html).toContain('Runtime and serialization errors')
     expect(html).toContain('href="/guides/is-online-json-formatter-safe/"')
+  })
+
+  it('keeps Phase 2 guides within the long-tail quality contract', () => {
+    for (const slug of PHASE2_GUIDE_SLUGS) {
+      const page = GUIDE_PAGES.find((guidePage) => guidePage.slug === slug)
+
+      expect(page, slug).toBeDefined()
+      expect(page.title.toLowerCase(), slug).toContain(page.primaryKeyword.toLowerCase())
+      expect(page.description.toLowerCase(), slug).toContain(page.primaryKeyword.toLowerCase())
+      expect(page.sections, slug).toHaveLength(5)
+      expect(page.faq, slug).toHaveLength(4)
+    }
+  })
+
+  it('ships the external submission checklist and Search Console monitoring template', () => {
+    const submissionChecklist = readFileSync(
+      path.resolve(path.dirname(keywordMapPath), 'seo-external-submission-checklist.md'),
+      'utf8',
+    )
+    const monitoringTable = readFileSync(
+      path.resolve(path.dirname(keywordMapPath), 'gsc-monitoring-table.md'),
+      'utf8',
+    )
+
+    expect(submissionChecklist).toContain('GitHub')
+    expect(submissionChecklist).toContain('Do not buy links')
+    expect(monitoringTable).toContain('Impressions')
+    expect(monitoringTable).toContain('Indexing status')
   })
 
   it('keeps every guide within the V2 target word-count range', () => {

@@ -49,6 +49,31 @@ English version: [seo-keyword-map.md](./seo-keyword-map.md)
 | `/guides/strict-json-vs-json5/` | 主关键词：strict JSON vs JSON5（严格 JSON 与 JSON5 对比） | JSON5 comments、strict JSON syntax、JSON5 vs JSON | 格式选择 | `/json-validator/`、`/guides/comments-in-json/` |
 | `/guides/is-online-json-formatter-safe/` | 主关键词：is online JSON formatter safe（在线 JSON 格式化器是否安全） | private JSON formatter、browser-local JSON tool、safe JSON validation | 信任与安全 | `/json-formatter/`、`/privacy/` |
 
+## Phase 2 运行时错误指南集群
+
+| URL | 主关键词 | 次级意图 | 搜索意图 | 链接到 |
+| --- | --- | --- | --- | --- |
+| `/guides/json-parse-unexpected-token-o/` | 主关键词：JSON.parse unexpected token o | [object Object] JSON parse、parse already parsed object | 运行时解析错误 | `/json-error-finder/`、`/guides/unexpected-token-object-object-in-json/` |
+| `/guides/json-parse-unexpected-token-u/` | 主关键词：JSON.parse unexpected token u | JSON.parse undefined、localStorage parse undefined | 运行时解析错误 | `/json-error-finder/`、`/guides/unexpected-token-undefined-in-json/` |
+| `/guides/unexpected-token-nan-in-json/` | 主关键词：Unexpected token NaN in JSON | NaN invalid JSON、JSON.stringify NaN | 运行时解析错误 | `/json-validator/`、`/fix-invalid-json/` |
+| `/guides/unexpected-token-infinity-in-json/` | 主关键词：Unexpected token Infinity in JSON | Infinity invalid JSON、finite JSON numbers | 运行时解析错误 | `/json-validator/`、`/fix-invalid-json/` |
+| `/guides/unexpected-token-undefined-in-json/` | 主关键词：Unexpected token undefined in JSON | undefined invalid JSON、JSON null vs undefined | 运行时解析错误 | `/json-validator/`、`/guides/json-parse-unexpected-token-u/` |
+| `/guides/unterminated-string-literal-in-json/` | 主关键词：Unterminated string literal in JSON | missing quote JSON、unescaped quote JSON | 错误修复 | `/json-error-finder/`、`/guides/unclosed-string-in-json/` |
+| `/guides/invalid-escape-character-in-json/` | 主关键词：Invalid escape character in JSON | JSON backslash error、Windows path JSON escape | 错误修复 | `/json-error-finder/`、`/json-validator/` |
+| `/guides/invalid-unicode-escape-in-json/` | 主关键词：Invalid Unicode escape in JSON | JSON unicode escape、invalid \\u escape | 错误修复 | `/json-error-finder/`、`/json-validator/` |
+| `/guides/unexpected-token-bom-in-json/` | 主关键词：Unexpected token BOM in JSON | JSON byte order mark、hidden character JSON | 错误修复 | `/json-error-finder/`、`/json-validator/` |
+| `/guides/empty-response-json-parse-error/` | 主关键词：Empty response JSON parse error | response.json empty body、204 JSON parse | 运行时解析错误 | `/json-error-finder/`、`/guides/unexpected-end-of-json-input/` |
+| `/guides/response-json-is-not-a-function/` | 主关键词：response.json is not a function | fetch response json error、axios response.data | 运行时流程 | `/guides/content-type-text-html-json-error/`、`/json-validator/` |
+| `/guides/body-stream-already-read-json/` | 主关键词：body stream already read JSON | response body already consumed、fetch parse once | 运行时流程 | `/guides/empty-response-json-parse-error/`、`/json-validator/` |
+| `/guides/unexpected-non-whitespace-character-after-json/` | 主关键词：Unexpected non-whitespace character after JSON | multiple JSON objects、extra text after JSON | 错误修复 | `/json-error-finder/`、`/guides/extra-data-after-json/` |
+| `/guides/duplicate-keys-in-json/` | 主关键词：Duplicate keys in JSON | repeated JSON properties、duplicate object keys | 数据质量 | `/json-viewer/`、`/json-validator/` |
+| `/guides/extra-data-after-json/` | 主关键词：Extra data after JSON | multiple JSON values、NDJSON vs JSON | 错误修复 | `/json-error-finder/`、`/guides/unexpected-non-whitespace-character-after-json/` |
+| `/guides/unexpected-token-object-object-in-json/` | 主关键词：Unexpected token object Object in JSON | [object Object] JSON、stringify object correctly | 运行时解析错误 | `/guides/json-parse-unexpected-token-o/`、`/json-validator/` |
+| `/guides/truncated-json-response/` | 主关键词：Truncated JSON response | incomplete JSON response、missing closing brace API | 运行时解析错误 | `/json-error-finder/`、`/guides/unexpected-end-of-json-input/` |
+| `/guides/missing-comma-in-json-array/` | 主关键词：Missing comma in JSON array | array separator JSON、expected comma in array | 错误修复 | `/json-error-finder/`、`/guides/missing-comma-in-json/` |
+| `/guides/leading-zero-in-json-number/` | 主关键词：Leading zero in JSON number | invalid JSON number、ZIP code JSON string | 错误修复 | `/json-validator/`、`/fix-invalid-json/` |
+| `/guides/content-type-text-html-json-error/` | 主关键词：Content-Type text/html JSON error | API returned HTML、response.json unexpected token | 运行时解析错误 | `/guides/unexpected-token-less-than-in-json/`、`/json-error-finder/` |
+
 ## 内容规则
 
 - 一个页面只围绕一个主关键词展开。

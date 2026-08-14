@@ -49,6 +49,31 @@ Chinese version: [seo-keyword-map.zh-CN.md](./seo-keyword-map.zh-CN.md)
 | `/guides/strict-json-vs-json5/` | Primary: strict JSON vs JSON5 | JSON5 comments, strict JSON syntax, JSON5 vs JSON | Format choice | `/json-validator/`, `/guides/comments-in-json/` |
 | `/guides/is-online-json-formatter-safe/` | Primary: is online JSON formatter safe | private JSON formatter, browser-local JSON tool, safe JSON validation | Trust and safety | `/json-formatter/`, `/privacy/` |
 
+## Phase 2 Runtime Error Guide Cluster
+
+| URL | Primary | Secondary intent | Search intent | Links to |
+| --- | --- | --- | --- | --- |
+| `/guides/json-parse-unexpected-token-o/` | Primary: JSON.parse unexpected token o | [object Object] JSON parse, parse already parsed object | Runtime parse error | `/json-error-finder/`, `/guides/unexpected-token-object-object-in-json/` |
+| `/guides/json-parse-unexpected-token-u/` | Primary: JSON.parse unexpected token u | JSON.parse undefined, localStorage parse undefined | Runtime parse error | `/json-error-finder/`, `/guides/unexpected-token-undefined-in-json/` |
+| `/guides/unexpected-token-nan-in-json/` | Primary: Unexpected token NaN in JSON | NaN invalid JSON, JSON.stringify NaN | Runtime parse error | `/json-validator/`, `/fix-invalid-json/` |
+| `/guides/unexpected-token-infinity-in-json/` | Primary: Unexpected token Infinity in JSON | Infinity invalid JSON, finite JSON numbers | Runtime parse error | `/json-validator/`, `/fix-invalid-json/` |
+| `/guides/unexpected-token-undefined-in-json/` | Primary: Unexpected token undefined in JSON | undefined invalid JSON, JSON null vs undefined | Runtime parse error | `/json-validator/`, `/guides/json-parse-unexpected-token-u/` |
+| `/guides/unterminated-string-literal-in-json/` | Primary: Unterminated string literal in JSON | missing quote JSON, unescaped quote JSON | Error repair | `/json-error-finder/`, `/guides/unclosed-string-in-json/` |
+| `/guides/invalid-escape-character-in-json/` | Primary: Invalid escape character in JSON | JSON backslash error, Windows path JSON escape | Error repair | `/json-error-finder/`, `/json-validator/` |
+| `/guides/invalid-unicode-escape-in-json/` | Primary: Invalid Unicode escape in JSON | JSON unicode escape, invalid \\u escape | Error repair | `/json-error-finder/`, `/json-validator/` |
+| `/guides/unexpected-token-bom-in-json/` | Primary: Unexpected token BOM in JSON | JSON byte order mark, hidden character JSON | Error repair | `/json-error-finder/`, `/json-validator/` |
+| `/guides/empty-response-json-parse-error/` | Primary: Empty response JSON parse error | response.json empty body, 204 JSON parse | Runtime parse error | `/json-error-finder/`, `/guides/unexpected-end-of-json-input/` |
+| `/guides/response-json-is-not-a-function/` | Primary: response.json is not a function | fetch response json error, axios response.data | Runtime workflow | `/guides/content-type-text-html-json-error/`, `/json-validator/` |
+| `/guides/body-stream-already-read-json/` | Primary: body stream already read JSON | response body already consumed, fetch parse once | Runtime workflow | `/guides/empty-response-json-parse-error/`, `/json-validator/` |
+| `/guides/unexpected-non-whitespace-character-after-json/` | Primary: Unexpected non-whitespace character after JSON | multiple JSON objects, extra text after JSON | Error repair | `/json-error-finder/`, `/guides/extra-data-after-json/` |
+| `/guides/duplicate-keys-in-json/` | Primary: Duplicate keys in JSON | repeated JSON properties, duplicate object keys | Data quality | `/json-viewer/`, `/json-validator/` |
+| `/guides/extra-data-after-json/` | Primary: Extra data after JSON | multiple JSON values, NDJSON vs JSON | Error repair | `/json-error-finder/`, `/guides/unexpected-non-whitespace-character-after-json/` |
+| `/guides/unexpected-token-object-object-in-json/` | Primary: Unexpected token object Object in JSON | [object Object] JSON, stringify object correctly | Runtime parse error | `/guides/json-parse-unexpected-token-o/`, `/json-validator/` |
+| `/guides/truncated-json-response/` | Primary: Truncated JSON response | incomplete JSON response, missing closing brace API | Runtime parse error | `/json-error-finder/`, `/guides/unexpected-end-of-json-input/` |
+| `/guides/missing-comma-in-json-array/` | Primary: Missing comma in JSON array | array separator JSON, expected comma in array | Error repair | `/json-error-finder/`, `/guides/missing-comma-in-json/` |
+| `/guides/leading-zero-in-json-number/` | Primary: Leading zero in JSON number | invalid JSON number, ZIP code JSON string | Error repair | `/json-validator/`, `/fix-invalid-json/` |
+| `/guides/content-type-text-html-json-error/` | Primary: Content-Type text/html JSON error | API returned HTML, response.json unexpected token | Runtime parse error | `/guides/unexpected-token-less-than-in-json/`, `/json-error-finder/` |
+
 ## Content Rules
 
 - One page, one primary keyword.

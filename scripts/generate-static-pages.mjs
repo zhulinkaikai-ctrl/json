@@ -2,6 +2,8 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
+import { PHASE2_GUIDE_SLUGS, createPhase2Guides } from './phase2-guides.mjs'
+
 export const SITE_URL = 'https://jsonfmt.org'
 export const SITE_NAME = 'JSONFmt'
 export const CONTACT_EMAIL = 'zhulinkaikai@gmail.com'
@@ -741,6 +743,8 @@ Second line",
   }),
 )
 
+GUIDE_PAGES.push(...createPhase2Guides(guide, section))
+
 export const TOOL_PAGES = [
   tool({
     slug: 'json-formatter',
@@ -1103,6 +1107,11 @@ export const GUIDE_GROUPS = [
       'strict-json-vs-json5',
       'is-online-json-formatter-safe',
     ],
+  },
+  {
+    title: 'Runtime and serialization errors',
+    summary: 'Debug JSON.parse, fetch response, serialization, hidden character, numeric, and multi-value JSON failures.',
+    slugs: PHASE2_GUIDE_SLUGS,
   },
 ]
 
