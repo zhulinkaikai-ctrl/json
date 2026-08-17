@@ -25,9 +25,9 @@ export function createPhase2Guides(guide, section) {
   return [
     guide({
       slug: 'json-parse-unexpected-token-o',
-      title: 'JSON.parse unexpected token o: Fix the [object Object] Error',
+      title: 'JSON.parse unexpected token o: Fix [object Object] Errors',
       description: 'Fix JSON.parse unexpected token o errors by checking whether an object was parsed again or converted to [object Object] before parsing.',
-      summary: 'JSON.parse unexpected token o usually means the parser received text that starts with `o`, often from `[object Object]` or a value that was already parsed.',
+      summary: 'JSON.parse unexpected token o usually means the parser received [object Object] or a value that was already parsed.',
       primaryKeyword: 'JSON.parse unexpected token o',
       invalidCode: `[object Object]`,
       fixedCode: `{

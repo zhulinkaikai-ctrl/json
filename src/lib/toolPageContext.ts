@@ -9,7 +9,7 @@ export type ToolPageContext = {
 const homeContext: ToolPageContext = {
   eyebrow: 'Privacy-first JSON workspace',
   heading: 'JSON formatter, validator, and error finder',
-  lead: 'Format, validate, minify, and repair strict JSON without sending it anywhere.',
+  lead: 'Format, validate, minify, and repair strict JSON locally in your browser for API payloads, configs, and logs.',
   editorLabel: 'JSON input',
   actionHint: 'Validate as you type.',
 }
@@ -51,18 +51,18 @@ const toolPageContexts: Record<string, ToolPageContext> = {
     actionHint: 'Validate first, then pretty print.',
   },
   '/json-error-finder/': {
-    eyebrow: 'Strict JSON diagnostics',
+    eyebrow: 'Browser-local JSON error finder',
     heading: 'JSON error finder',
-    lead: 'Find the first syntax error, understand it, and repair the JSON yourself.',
+    lead: 'Find the first strict JSON syntax error, see line and column details, and repair it locally.',
     editorLabel: 'JSON to diagnose',
-    actionHint: 'Checking for syntax errors.',
+    actionHint: 'Checking line and column as you type.',
   },
   '/fix-invalid-json/': {
-    eyebrow: 'Strict JSON diagnostics',
+    eyebrow: 'Browser-local JSON repair',
     heading: 'Fix invalid JSON',
-    lead: 'Locate the first parsing problem and make the smallest correct repair.',
+    lead: 'See the parser line and column, diagnose the blocking JSON error, and make the smallest correct repair.',
     editorLabel: 'Invalid JSON to fix',
-    actionHint: 'Checking for syntax errors.',
+    actionHint: 'Checking the parser location as you type.',
   },
   '/json-viewer/': {
     eyebrow: 'Browser-local JSON viewer',

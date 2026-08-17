@@ -616,9 +616,9 @@ Second line",
   }),
   guide({
     slug: 'unexpected-token-less-than-in-json',
-    title: 'Unexpected Token < in JSON: Why It Happens',
+    title: 'Unexpected Token < in JSON: API Returned HTML',
     description: 'Fix unexpected token < in JSON errors by checking whether an API returned HTML instead of JSON, then validating the real response body.',
-    summary: 'Unexpected token < in JSON usually means the parser received HTML instead of a JSON response.',
+    summary: 'Unexpected token < in JSON usually means the parser received HTML from a login page, redirect, or error route.',
     primaryKeyword: 'unexpected token < in JSON',
     invalidCode: `<!doctype html>
 <html>
@@ -893,10 +893,10 @@ export const TOOL_PAGES = [
   }),
   tool({
     slug: 'json-error-finder',
-    title: 'JSON Error Finder - Locate and Fix Invalid JSON',
-    description: 'Use JSON error finder guidance with line and column details. Diagnose invalid strict JSON locally in your browser without uploads.',
+    title: 'JSON Error Finder - Find the First Strict JSON Error',
+    description: 'Use this JSON error finder in your browser to find the first strict JSON error, see the line and column, and repair the payload without uploading it.',
     heading: 'JSON error finder',
-    summary: 'Use this JSON error finder to locate the first JSON syntax error, understand why it happened, and repair the text without sending it to a server.',
+    summary: 'Use this JSON error finder to locate the first strict JSON syntax error, understand why it happened, and repair the text without sending it to a server.',
     primaryKeyword: 'json error finder',
     action: 'Find JSON errors',
     sections: [
@@ -922,10 +922,10 @@ export const TOOL_PAGES = [
   }),
   tool({
     slug: 'fix-invalid-json',
-    title: 'Fix Invalid JSON - Diagnose JSON Syntax Errors',
-    description: 'Fix invalid JSON with local syntax diagnostics, line and column locations, and practical repair guidance for common strict JSON errors.',
+    title: 'Fix Invalid JSON - Diagnose and Repair Strict JSON Errors',
+    description: 'Fix invalid JSON by checking line and column, understanding the parser message, and making the smallest correct repair in your browser.',
     heading: 'Fix invalid JSON',
-    summary: 'Fix invalid JSON by diagnosing the parser message, understanding the cause, and making the smallest correct repair in your browser.',
+    summary: 'Fix invalid JSON by diagnosing the blocking parser error and making the smallest correct repair.',
     primaryKeyword: 'fix invalid json',
     action: 'Diagnose JSON',
     sections: [
@@ -1127,8 +1127,8 @@ export const HOME_PAGE = {
   kind: 'home',
   path: '/',
   canonical: `${SITE_URL}/`,
-  title: 'JSON Formatter and Validator - JSONFmt',
-  description: 'Format, validate, minify, and fix JSON syntax errors locally in your browser. Your JSON stays on your device.',
+  title: 'JSON Formatter, Validator, Minifier & Error Finder | JSONFmt',
+  description: 'Format, validate, minify, and repair strict JSON locally in your browser with browser-only tools for API payloads, configs, and logs.',
 }
 
 export const PAGE_ROUTES = [

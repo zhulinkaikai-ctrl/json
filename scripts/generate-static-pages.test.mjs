@@ -59,6 +59,37 @@ describe('V3 static page registry', () => {
     expect(GUIDE_PAGES.map((page) => page.slug)).toEqual(expect.arrayContaining(PHASE2_GUIDE_SLUGS))
   })
 
+  it('sharpens the homepage and the main discovery pages for search intent', () => {
+    expect(HOME_PAGE).toMatchObject({
+      title: 'JSON Formatter, Validator, Minifier & Error Finder | JSONFmt',
+      description: 'Format, validate, minify, and repair strict JSON locally in your browser with browser-only tools for API payloads, configs, and logs.',
+    })
+
+    expect(TOOL_PAGES.find((page) => page.slug === 'json-error-finder')).toMatchObject({
+      title: 'JSON Error Finder - Find the First Strict JSON Error',
+      description: 'Use this JSON error finder in your browser to find the first strict JSON error, see the line and column, and repair the payload without uploading it.',
+      summary: 'Use this JSON error finder to locate the first strict JSON syntax error, understand why it happened, and repair the text without sending it to a server.',
+    })
+
+    expect(TOOL_PAGES.find((page) => page.slug === 'fix-invalid-json')).toMatchObject({
+      title: 'Fix Invalid JSON - Diagnose and Repair Strict JSON Errors',
+      description: 'Fix invalid JSON by checking line and column, understanding the parser message, and making the smallest correct repair in your browser.',
+      summary: 'Fix invalid JSON by diagnosing the blocking parser error and making the smallest correct repair.',
+    })
+
+    expect(GUIDE_PAGES.find((page) => page.slug === 'unexpected-token-less-than-in-json')).toMatchObject({
+      title: 'Unexpected Token < in JSON: API Returned HTML',
+      description: 'Fix unexpected token < in JSON errors by checking whether an API returned HTML instead of JSON, then validating the real response body.',
+      summary: 'Unexpected token < in JSON usually means the parser received HTML from a login page, redirect, or error route.',
+    })
+
+    expect(GUIDE_PAGES.find((page) => page.slug === 'json-parse-unexpected-token-o')).toMatchObject({
+      title: 'JSON.parse unexpected token o: Fix [object Object] Errors',
+      description: 'Fix JSON.parse unexpected token o errors by checking whether an object was parsed again or converted to [object Object] before parsing.',
+      summary: 'JSON.parse unexpected token o usually means the parser received [object Object] or a value that was already parsed.',
+    })
+  })
+
   it('uses absolute canonical URLs on every static route', () => {
     for (const page of PAGE_ROUTES) {
       expect(page.canonical).toBe(`${SITE_URL}${page.path}`)
