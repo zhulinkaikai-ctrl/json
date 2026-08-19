@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   getHomepageActionFeedback,
   getHomepageOutputText,
+  getHomepageTreeData,
   isHomepageOutputStale,
   runHomepageAction,
 } from './homepageWorkspace'
@@ -20,6 +21,47 @@ describe('homepage workspace actions', () => {
       sourceInput: source,
     })
     expect(getHomepageOutputText(output)).toBe('{\n  "name": "Ada"\n}')
+  })
+
+  it('formats valid JSON with a requested four-space indent', () => {
+    const output = runHomepageAction('{"name":"Ada"}', 'format', { indentSize: 4 })
+
+    expect(output).toMatchObject({
+      kind: 'text',
+      action: 'format',
+      value: '{\n    "name": "Ada"\n}',
+    })
+  })
+
+  it('builds a tree view from the latest readable homepage output', () => {
+    const output = runHomepageAction('{"service":"JSONFmt","features":["format","validate"]}', 'format')
+
+    expect(getHomepageTreeData(output)).toMatchObject({
+      typeLabel: 'Object',
+      children: [
+        {
+          key: 'service',
+          typeLabel: 'String',
+          value: '"JSONFmt"',
+        },
+        {
+          key: 'features',
+          typeLabel: 'Array (2)',
+          children: [
+            {
+              key: '[0]',
+              typeLabel: 'String',
+              value: '"format"',
+            },
+            {
+              key: '[1]',
+              typeLabel: 'String',
+              value: '"validate"',
+            },
+          ],
+        },
+      ],
+    })
   })
 
   it('replaces a previous result with the current diagnostic when formatting invalid JSON', () => {

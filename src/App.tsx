@@ -3,11 +3,14 @@ import {
   BookOpen,
   Braces,
   Check,
+  ClipboardPaste,
   Copy,
+  Download,
   FileCode2,
   FileInput,
   FileWarning,
   Info,
+  ListTree,
   Minimize2,
   RotateCcw,
   ShieldCheck,
@@ -32,10 +35,13 @@ import {
   getHomepageActionFeedback,
   getHomepageActionLabel,
   getHomepageOutputText,
+  getHomepageTreeData,
   isHomepageOutputStale,
   runHomepageAction,
   type HomepageAction,
+  type HomepageIndentSize,
   type HomepageOutput,
+  type HomepageTreeNode,
 } from './lib/homepageWorkspace'
 import { DEFAULT_JSON_SAMPLE } from './lib/homepageSample'
 import { getToolPageContext, isWorkspaceRoute } from './lib/toolPageContext'
@@ -45,6 +51,7 @@ const INITIAL_SAMPLE = DEFAULT_JSON_SAMPLE
 type ToolState = 'empty' | 'editing' | 'valid' | 'invalid' | 'oversize' | 'file-error'
 type Toast = { message: string; tone: 'success' | 'error' } | null
 type ToastTone = Exclude<Toast, null>['tone']
+type HomepageOutputView = 'formatted' | 'tree' | 'result'
 
 const byteFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
@@ -79,6 +86,8 @@ function App() {
   const [isDragging, setIsDragging] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const [editorReady, setEditorReady] = useState(false)
+  const [indentSize, setIndentSize] = useState<HomepageIndentSize>(2)
+  const [homepageOutputView, setHomepageOutputView] = useState<HomepageOutputView>('formatted')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const monacoRef = useRef<Monaco | null>(null)
   const actionTimeoutRef = useRef<number | null>(null)
@@ -169,11 +178,12 @@ function App() {
 
   const handleHomepageAction = useCallback((action: HomepageAction) => {
     if (!hasValue) return
-    const output = runHomepageAction(value, action)
+    const output = runHomepageAction(value, action, { indentSize })
     setHomepageOutput(output)
+    setHomepageOutputView(output.kind === 'text' ? 'formatted' : 'result')
     const feedback = getHomepageActionFeedback(output)
     showToast(feedback.message, feedback.tone)
-  }, [hasValue, showToast, value])
+  }, [hasValue, indentSize, showToast, value])
 
   const handleCopyOutput = useCallback(async () => {
     if (!homepageOutputText) return
@@ -198,12 +208,42 @@ function App() {
     if (message) showToast(message, 'success')
   }, [showToast])
 
+  const handlePaste = useCallback(async () => {
+    try {
+      const pastedValue = await navigator.clipboard.readText()
+      if (!pastedValue) {
+        showToast('Clipboard is empty.', 'error')
+        return
+      }
+
+      loadValue(pastedValue, 'JSON pasted into input.')
+    } catch {
+      showToast('Clipboard access was blocked. Paste directly into the editor.', 'error')
+    }
+  }, [loadValue, showToast])
+
   const clearValue = useCallback(() => {
     setFileError(null)
     setValue('')
     setHomepageOutput(EMPTY_HOMEPAGE_OUTPUT)
     showToast('JSON cleared.', 'success')
   }, [showToast])
+
+  const handleDownloadOutput = useCallback(() => {
+    if (!homepageOutputText) return
+
+    const outputName = homepageOutput.kind === 'text' && homepageOutput.action === 'minify'
+      ? 'minified-json.json'
+      : 'formatted-json.json'
+    const blob = new Blob([homepageOutputText], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = outputName
+    anchor.click()
+    URL.revokeObjectURL(url)
+    showToast('JSON downloaded.', 'success')
+  }, [homepageOutput, homepageOutputText, showToast])
 
   const handleFile = useCallback(async (file?: File) => {
     if (!file) return
@@ -358,10 +398,24 @@ function App() {
                     <span>JSON Input</span>
                     {toolState === 'editing' && <span className="checking">Checking...</span>}
                   </div>
+                  <div className="panel-toolbar-actions">
+                    <IconButton label="Paste from clipboard" onClick={() => void handlePaste()}>
+                      <ClipboardPaste size={15} />
+                    </IconButton>
+                    <IconButton label="Load sample JSON" onClick={() => loadValue(INITIAL_SAMPLE, 'Sample JSON loaded.')}>
+                      <Sparkles size={15} />
+                    </IconButton>
+                    <IconButton label="Upload a local JSON file" onClick={() => fileInputRef.current?.click()}>
+                      <Upload size={15} />
+                    </IconButton>
+                    <IconButton label="Clear JSON input" disabled={!hasValue} onClick={clearValue}>
+                      <Trash2 size={15} />
+                    </IconButton>
+                  </div>
                 </div>
                 {editorDropzone}
                 <div className="editor-footer">
-                  <span>Paste JSON, import a file, or drag a .json file into the editor.</span>
+                  <span>Paste, load a sample, upload, or drag a .json file here.</span>
                   <span>Source stays unchanged</span>
                 </div>
               </section>
@@ -376,12 +430,18 @@ function App() {
                 <CommandButton label="Minify" disabled={!hasValue} onClick={() => handleHomepageAction('minify')}>
                   <Minimize2 size={16} />
                 </CommandButton>
-                <CommandButton label="Upload" onClick={() => fileInputRef.current?.click()}>
-                  <Upload size={16} />
-                </CommandButton>
-                <CommandButton label="Clear" disabled={!hasValue && homepageOutput.kind === 'empty'} onClick={clearValue}>
-                  <Trash2 size={16} />
-                </CommandButton>
+                <label className="indent-control">
+                  <span>Indent</span>
+                  <select
+                    aria-label="Formatting indentation"
+                    value={indentSize}
+                    onChange={(event) => setIndentSize(event.target.value === 'tab' ? 'tab' : Number(event.target.value) as 2 | 4)}
+                  >
+                    <option value={2}>2 spaces</option>
+                    <option value={4}>4 spaces</option>
+                    <option value="tab">Tabs</option>
+                  </select>
+                </label>
                 <input
                   ref={fileInputRef}
                   className="visually-hidden"
@@ -399,8 +459,12 @@ function App() {
                 inputValue={value}
                 isStale={homepageOutputStale}
                 outputText={homepageOutputText}
+                outputView={homepageOutputView}
+                treeData={getHomepageTreeData(homepageOutput)}
                 onCopyOutput={() => void handleCopyOutput()}
+                onDownloadOutput={handleDownloadOutput}
                 onUseOutputAsInput={handleUseOutputAsInput}
+                onChangeView={setHomepageOutputView}
                 onLoadSample={() => loadValue(INITIAL_SAMPLE, 'Sample JSON loaded.')}
               />
             </div>
@@ -607,20 +671,31 @@ function HomepageOutputPanel({
   inputValue,
   isStale,
   outputText,
+  outputView,
+  treeData,
   onCopyOutput,
+  onDownloadOutput,
   onUseOutputAsInput,
+  onChangeView,
   onLoadSample,
 }: {
   output: HomepageOutput
   inputValue: string
   isStale: boolean
   outputText: string | null
+  outputView: HomepageOutputView
+  treeData: HomepageTreeNode | null
   onCopyOutput: () => void
+  onDownloadOutput: () => void
   onUseOutputAsInput: () => void
+  onChangeView: (view: HomepageOutputView) => void
   onLoadSample: () => void
 }) {
   const outputLabel = getHomepageOutputLabel(output)
   const staleLabel = getHomepageStaleLabel(output)
+  const canShowFormatted = output.kind === 'text'
+  const canShowTree = Boolean(treeData)
+  const canShowResult = output.kind === 'validation' || output.kind === 'diagnostic'
 
   return (
     <aside className="output-panel" aria-live="polite" aria-label="JSON output">
@@ -632,13 +707,44 @@ function HomepageOutputPanel({
         <div className="output-actions">
           <button className="output-action-button" type="button" disabled={!outputText} onClick={onCopyOutput}>
             <Copy size={14} />
-            <span>Copy Output</span>
+            <span>Copy</span>
+          </button>
+          <button className="output-action-button" type="button" disabled={!outputText} onClick={onDownloadOutput}>
+            <Download size={14} />
+            <span>Download</span>
           </button>
           <button className="output-action-button" type="button" disabled={!outputText} onClick={onUseOutputAsInput}>
             <RotateCcw size={14} />
-            <span>Use output as input</span>
+            <span>Use as input</span>
           </button>
         </div>
+      </div>
+
+      <div className="output-view-tabs" role="tablist" aria-label="Output view">
+        <OutputViewButton
+          label="Formatted"
+          active={outputView === 'formatted'}
+          disabled={!canShowFormatted}
+          onClick={() => onChangeView('formatted')}
+        >
+          <Braces size={14} />
+        </OutputViewButton>
+        <OutputViewButton
+          label="Tree"
+          active={outputView === 'tree'}
+          disabled={!canShowTree}
+          onClick={() => onChangeView('tree')}
+        >
+          <ListTree size={14} />
+        </OutputViewButton>
+        <OutputViewButton
+          label="Result"
+          active={outputView === 'result'}
+          disabled={!canShowResult}
+          onClick={() => onChangeView('result')}
+        >
+          <FileWarning size={14} />
+        </OutputViewButton>
       </div>
 
       {isStale && (
@@ -649,9 +755,37 @@ function HomepageOutputPanel({
       )}
 
       <div className="output-body">
-        {renderHomepageOutputBody(output, inputValue, outputText, onLoadSample)}
+        {renderHomepageOutputBody(output, inputValue, outputText, outputView, treeData, onLoadSample)}
       </div>
     </aside>
+  )
+}
+
+function OutputViewButton({
+  label,
+  active,
+  disabled,
+  children,
+  onClick,
+}: {
+  label: string
+  active: boolean
+  disabled: boolean
+  children: React.ReactNode
+  onClick: () => void
+}) {
+  return (
+    <button
+      className={`output-view-button ${active ? 'is-active' : ''}`}
+      type="button"
+      role="tab"
+      aria-selected={active}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+      <span>{label}</span>
+    </button>
   )
 }
 
@@ -659,6 +793,8 @@ function renderHomepageOutputBody(
   output: HomepageOutput,
   inputValue: string,
   outputText: string | null,
+  outputView: HomepageOutputView,
+  treeData: HomepageTreeNode | null,
   onLoadSample: () => void,
 ) {
   if (output.kind === 'empty') {
@@ -677,7 +813,7 @@ function renderHomepageOutputBody(
     )
   }
 
-  if (output.kind === 'text' && outputText) {
+  if (outputView === 'formatted' && output.kind === 'text' && outputText) {
     return (
       <pre className="output-code" aria-readonly="true" tabIndex={0}>
         <code>{outputText}</code>
@@ -685,7 +821,15 @@ function renderHomepageOutputBody(
     )
   }
 
-  if (output.kind === 'validation') {
+  if (outputView === 'tree' && treeData) {
+    return (
+      <div className="output-tree" role="tree" aria-label="JSON tree">
+        <HomepageTreeNodeView node={treeData} />
+      </div>
+    )
+  }
+
+  if (outputView === 'result' && output.kind === 'validation') {
     const summary = getValidDiagnosticSummary(output.diagnostic)
 
     return (
@@ -706,7 +850,7 @@ function renderHomepageOutputBody(
     )
   }
 
-  if (output.kind === 'diagnostic') {
+  if (outputView === 'result' && output.kind === 'diagnostic') {
     return (
       <div className="diagnostic-result invalid-result">
         <div className="result-heading">
@@ -734,7 +878,50 @@ function renderHomepageOutputBody(
     )
   }
 
+  if (output.kind === 'validation') {
+    return (
+      <div className="output-empty">
+        <div className="diagnostic-icon quiet"><ListTree size={25} /></div>
+        <p className="panel-kicker">Valid JSON</p>
+        <h2>Choose a result view.</h2>
+        <p>Open Tree to inspect the structure or Result to review the validation summary.</p>
+      </div>
+    )
+  }
+
+  if (output.kind === 'diagnostic') {
+    return (
+      <div className="output-empty">
+        <div className="diagnostic-icon invalid"><FileWarning size={25} /></div>
+        <p className="panel-kicker">JSON error</p>
+        <h2>Review the diagnostic.</h2>
+        <p>Open Result to see the line, context, and repair suggestion.</p>
+      </div>
+    )
+  }
+
   return null
+}
+
+function HomepageTreeNodeView({ node }: { node: HomepageTreeNode }) {
+  const hasChildren = Boolean(node.children?.length)
+
+  return (
+    <div className="tree-node" role="treeitem" aria-label={`${node.key}: ${node.typeLabel}`}>
+      <div className="tree-node-row">
+        <span className="tree-node-key">{node.key}</span>
+        <span className="tree-node-type">{node.typeLabel}</span>
+        {node.value !== undefined && <code className="tree-node-value">{node.value}</code>}
+      </div>
+      {hasChildren && (
+        <div className="tree-node-children" role="group">
+          {node.children?.map((child) => (
+            <HomepageTreeNodeView key={`${node.key}-${child.key}`} node={child} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 function getHomepageOutputLabel(output: HomepageOutput): string {
