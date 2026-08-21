@@ -90,6 +90,21 @@ describe('V3 static page registry', () => {
     })
   })
 
+  it('renders the homepage as a crawlable editor-first entry page', () => {
+    const html = renderStaticPage(HOME_PAGE, {
+      cssLinks: ['/assets/index-test.css'],
+      scriptLinks: ['/assets/index-test.js'],
+    })
+
+    expect(html).toContain('<div id="root">')
+    expect(html).toContain('<h1>JSON formatter, validator, and error finder</h1>')
+    expect(html).toContain('Format, validate, minify, and repair strict JSON locally in your browser')
+    expect(html).toContain('href="/json-formatter/"')
+    expect(html).toContain('href="/json-validator/"')
+    expect(html).toContain('href="/guides/unexpected-token-less-than-in-json/"')
+    expect(html).toContain('<script type="module" crossorigin src="/assets/index-test.js"></script>')
+  })
+
   it('uses absolute canonical URLs on every static route', () => {
     for (const page of PAGE_ROUTES) {
       expect(page.canonical).toBe(`${SITE_URL}${page.path}`)

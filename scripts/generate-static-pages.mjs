@@ -1277,7 +1277,7 @@ export function renderStaticPage(page, options = {}) {
   const jsonLd = getStructuredData(page)
   const searchConsoleVerificationMeta = getSearchConsoleVerificationMeta()
   const cloudflareWebAnalyticsScript = getCloudflareWebAnalyticsScript()
-  const body = page.kind === 'tool'
+  const body = page.kind === 'tool' || page.kind === 'home'
     ? `<div id="root">${renderStaticBody(page)}</div>
     ${scriptLinks.map((href) => `<script type="module" crossorigin src="${href}"></script>`).join('\n    ')}`
     : `<main class="static-shell">
@@ -1351,14 +1351,14 @@ export async function writeStaticPages(distDir = 'dist') {
   const cssLinks = await getBuiltCssLinks(distDir)
   const scriptLinks = await getBuiltScriptLinks(distDir)
 
-  for (const page of [TOOLS_INDEX, ...TOOL_PAGES, GUIDES_INDEX, ...GUIDE_PAGES, ...TRUST_PAGES]) {
+  for (const page of [HOME_PAGE, TOOLS_INDEX, ...TOOL_PAGES, GUIDES_INDEX, ...GUIDE_PAGES, ...TRUST_PAGES]) {
     const outputPath = path.join(distDir, page.path, 'index.html')
     await mkdir(path.dirname(outputPath), { recursive: true })
     await writeFile(
       outputPath,
       renderStaticPage(page, {
         cssLinks,
-        scriptLinks: page.kind === 'tool' ? scriptLinks : [],
+        scriptLinks: page.kind === 'tool' || page.kind === 'home' ? scriptLinks : [],
       }),
       'utf8',
     )
@@ -1459,11 +1459,148 @@ function renderStaticFooter() {
 }
 
 function renderStaticBody(page) {
+  if (page.kind === 'home') return renderHomePage()
   if (page.kind === 'tools-index') return renderToolsIndex()
   if (page.kind === 'tool') return renderToolPage(page)
   if (page.kind === 'guides-index') return renderGuidesIndex()
   if (page.kind === 'guide') return renderGuidePage(page)
   return renderTrustPage(page)
+}
+
+function renderHomePage() {
+  const featuredGuides = [
+    'unexpected-token-less-than-in-json',
+    'json-parse-unexpected-token-o',
+    'json-parse-unexpected-token-u',
+    'invalid-escape-character-in-json',
+    'unexpected-end-of-json-input',
+    'trailing-comma-in-json',
+  ].map((slug) => GUIDE_PAGES.find((guidePage) => guidePage.slug === slug)).filter(Boolean)
+
+  return `<main class="app-shell">
+  <section class="workspace" aria-label="JSON formatter, validator, and error finder">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="JSONFmt home"><span class="brand-mark">{ }</span><span>JSONFmt</span></a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="/json-formatter/">Formatter</a>
+        <a href="/json-validator/">Validator</a>
+        <a href="/json-minifier/">Minifier</a>
+        <a href="/json-error-finder/">Error Finder</a>
+        <a href="/tools/">Tools</a>
+        <a href="/guides/">Guides</a>
+      </nav>
+      <div class="privacy-note"><span>Runs locally in your browser</span></div>
+    </header>
+
+    <div class="intro" id="top">
+      <div>
+        <p class="eyebrow">Privacy-first JSON workspace</p>
+        <h1>JSON formatter, validator, and error finder</h1>
+        <p class="lead">Format, validate, minify, and repair strict JSON locally in your browser for API payloads, configs, and logs.</p>
+        <p class="tool-context">Paste JSON to validate as you type.</p>
+      </div>
+      <div class="input-stats" aria-label="Input statistics">
+        <span>Sample JSON</span>
+        <span>Runs locally</span>
+      </div>
+    </div>
+
+    <div class="home-tool-layout">
+      <section class="editor-panel home-input-panel" aria-label="JSON input preview">
+        <div class="panel-toolbar">
+          <div class="editor-label"><span class="state-dot valid" aria-hidden="true"></span><span>JSON Input</span></div>
+        </div>
+        <pre class="output-code"><code>{
+  &quot;service&quot;: &quot;JSONFmt&quot;,
+  &quot;private&quot;: true,
+  &quot;tasks&quot;: [&quot;format&quot;, &quot;validate&quot;, &quot;minify&quot;]
+}</code></pre>
+        <div class="editor-footer">
+          <span>The interactive editor loads on this page.</span>
+          <span>Strict JSON only</span>
+        </div>
+      </section>
+
+      <div class="workspace-actions" role="toolbar" aria-label="JSON actions">
+        <a class="command-button primary" href="/json-formatter/"><span>Format JSON</span></a>
+        <a class="command-button" href="/json-validator/"><span>Validate</span></a>
+        <a class="command-button" href="/json-minifier/"><span>Minify</span></a>
+      </div>
+
+      <aside class="output-panel" aria-label="JSON output preview">
+        <div class="output-toolbar">
+          <div class="editor-label"><span class="state-dot valid" aria-hidden="true"></span><span>Formatted Output</span></div>
+        </div>
+        <div class="output-body">
+          <pre class="output-code"><code>{
+  &quot;service&quot;: &quot;JSONFmt&quot;,
+  &quot;private&quot;: true,
+  &quot;tasks&quot;: [
+    &quot;format&quot;,
+    &quot;validate&quot;,
+    &quot;minify&quot;
+  ]
+}</code></pre>
+        </div>
+      </aside>
+    </div>
+
+    <section class="privacy-band" aria-label="Privacy notice">
+      <div>
+        <strong>Your JSON stays in your browser.</strong>
+        <span>It is parsed locally and is never uploaded, saved, or shared.</span>
+      </div>
+    </section>
+
+    <section class="tool-entry-band" aria-labelledby="tools-title">
+      <div>
+        <p class="eyebrow">JSON tools</p>
+        <h2 id="tools-title">Choose the exact task.</h2>
+      </div>
+      <div class="tool-entry-grid">
+        ${TOOL_PAGES.map((toolPage) => `<a class="tool-entry-link" href="${toolPage.path}">
+          <span><strong>${escapeHtml(toolPage.heading)}</strong><small>${escapeHtml(toolPage.summary)}</small></span>
+        </a>`).join('\n        ')}
+      </div>
+    </section>
+
+    <section class="guides-band" aria-labelledby="guides-title">
+      <div>
+        <p class="eyebrow">JSON error guides</p>
+        <h2 id="guides-title">Fix the syntax issue, then validate here.</h2>
+      </div>
+      <div class="guide-links">
+        ${featuredGuides.map((guidePage) => `<a href="${guidePage.path}"><span>${escapeHtml(guidePage.title)}</span></a>`).join('\n        ')}
+      </div>
+    </section>
+
+    <section class="faq" aria-labelledby="faq-title">
+      <div>
+        <p class="eyebrow">Quick answers</p>
+        <h2 id="faq-title">Built for the moment JSON breaks.</h2>
+      </div>
+      <div class="faq-grid">
+        <article><h3>Is my JSON uploaded?</h3><p>No. JSONFmt processes JSON locally in your browser.</p></article>
+        <article><h3>Why is JSON invalid?</h3><p>Missing commas, single quotes, unclosed strings, and unmatched brackets are common causes.</p></article>
+        <article><h3>Does JSONFmt support JSON5?</h3><p>No. JSONFmt validates strict standard JSON only.</p></article>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>JSONFmt is maintained by the JSON Formatter team.</span>
+      <nav aria-label="Footer navigation">
+        <a href="/tools/">All tools</a>
+        <a href="/json-formatter/">Formatter</a>
+        <a href="/json-validator/">Validator</a>
+        <a href="/json-minifier/">Minifier</a>
+        <a href="/guides/">Guides</a>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Use</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+    </footer>
+  </section>
+</main>`
 }
 
 function renderToolsIndex() {
