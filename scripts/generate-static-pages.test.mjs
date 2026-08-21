@@ -124,6 +124,15 @@ describe('V3 static page registry', () => {
     expect(html).not.toContain('pagead2.googlesyndication.com')
   })
 
+  it('renders the site icon and social preview image on static pages', () => {
+    const html = renderStaticPage(GUIDE_PAGES[0])
+
+    expect(html).toContain('<link rel="icon" type="image/png" href="/JSON.png">')
+    expect(html).toContain('<link rel="apple-touch-icon" href="/JSON.png">')
+    expect(html).toContain('<meta property="og:image" content="https://jsonfmt.org/JSON.png">')
+    expect(html).toContain('<meta name="twitter:image" content="https://jsonfmt.org/JSON.png">')
+  })
+
   it('renders a crawlable interactive shell and related links on tool pages', () => {
     const html = renderStaticPage(TOOL_PAGES[0], {
       scriptLinks: ['/assets/index-test.js'],

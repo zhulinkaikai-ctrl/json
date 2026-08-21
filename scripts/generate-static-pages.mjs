@@ -1295,13 +1295,17 @@ export function renderStaticPage(page, options = {}) {
     <meta name="description" content="${escapeHtml(page.description)}">
     <meta name="robots" content="index,follow">
     ${searchConsoleVerificationMeta}
+    <link rel="icon" type="image/png" href="/JSON.png">
+    <link rel="apple-touch-icon" href="/JSON.png">
     <link rel="canonical" href="${page.canonical}">
     <meta property="og:type" content="${page.kind === 'guide' ? 'article' : 'website'}">
     <meta property="og:site_name" content="${SITE_NAME}">
     <meta property="og:title" content="${escapeHtml(page.title)}">
     <meta property="og:description" content="${escapeHtml(page.description)}">
     <meta property="og:url" content="${page.canonical}">
+    <meta property="og:image" content="${SITE_URL}/JSON.png">
     <meta name="twitter:card" content="summary">
+    <meta name="twitter:image" content="${SITE_URL}/JSON.png">
     ${cssLinks.map((href) => `<link rel="stylesheet" href="${href}">`).join('\n    ')}
     ${jsonLd.map((data) => `<script type="application/ld+json">${JSON.stringify(data)}</script>`).join('\n    ')}
   </head>
