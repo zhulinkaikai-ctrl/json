@@ -90,6 +90,65 @@ describe('V3 static page registry', () => {
     })
   })
 
+  it('aligns high-impression guides with their Search Console queries', () => {
+    const expectedPages = {
+      'unexpected-token-in-json': {
+        title: 'Unexpected Token in JSON at Position 0: Causes and Fixes',
+        description: 'Fix unexpected token in JSON at position 0 by checking empty responses, HTML error pages, BOM characters, and non-JSON text before calling JSON.parse.',
+        summary: 'Unexpected token in JSON at position 0 usually means the parser received an empty body, HTML, a hidden character, or other non-JSON text.',
+        relatedGuideSlugs: [
+          'unexpected-token-less-than-in-json',
+          'empty-response-json-parse-error',
+          'json-parse-error',
+        ],
+      },
+      'single-quotes-in-json': {
+        title: 'Single Quotes in JSON: Can JSON Use Single Quotes?',
+        description: 'Fix single quotes in JSON by replacing invalid delimiters with double quotes and checking whether the source is JavaScript, JSON5, or strict JSON.',
+        summary: 'Single quotes in JSON are invalid in the strict format. Replace delimiters with double quotes, then validate the complete document.',
+        relatedGuideSlugs: [
+          'strict-json-vs-json5',
+          'unquoted-property-name-in-json',
+          'expected-double-quoted-property-name',
+        ],
+      },
+      'unexpected-non-whitespace-character-after-json': {
+        title: 'Unexpected Non-Whitespace Character After JSON: Fix Extra Data',
+        description: 'Fix unexpected non-whitespace character after JSON errors by removing logs, concatenated values, or extra text after the first JSON document.',
+        summary: 'Unexpected non-whitespace character after JSON means the parser finished one value and found extra data after it.',
+        relatedGuideSlugs: [
+          'extra-data-after-json',
+          'body-stream-already-read-json',
+          'truncated-json-response',
+        ],
+      },
+    }
+
+    for (const [slug, expected] of Object.entries(expectedPages)) {
+      const page = GUIDE_PAGES.find((guidePage) => guidePage.slug === slug)
+
+      expect(page, slug).toMatchObject(expected)
+      expect(page.title.length, slug).toBeLessThanOrEqual(62)
+      expect(page.sections[0].paragraphs[0].toLowerCase(), slug).toContain(
+        expected.title.split(':')[0].toLowerCase(),
+      )
+    }
+
+    const unexpectedTokenHtml = renderStaticPage(
+      GUIDE_PAGES.find((page) => page.slug === 'unexpected-token-in-json'),
+    )
+    const singleQuotesHtml = renderStaticPage(
+      GUIDE_PAGES.find((page) => page.slug === 'single-quotes-in-json'),
+    )
+    const extraDataHtml = renderStaticPage(
+      GUIDE_PAGES.find((page) => page.slug === 'unexpected-non-whitespace-character-after-json'),
+    )
+
+    expect(unexpectedTokenHtml).toContain('href="/guides/unexpected-token-less-than-in-json/"')
+    expect(singleQuotesHtml).toContain('href="/guides/strict-json-vs-json5/"')
+    expect(extraDataHtml).toContain('href="/guides/extra-data-after-json/"')
+  })
+
   it('renders the homepage as a crawlable editor-first entry page', () => {
     const html = renderStaticPage(HOME_PAGE, {
       cssLinks: ['/assets/index-test.css'],

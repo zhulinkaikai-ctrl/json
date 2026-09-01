@@ -53,9 +53,9 @@ export const GUIDE_PAGES = [
   }),
   guide({
     slug: 'unexpected-token-in-json',
-    title: 'Unexpected Token in JSON: How to Read and Fix the Error',
-    description: 'Understand common unexpected token JSON parse errors, where to look first, and how to repair invalid JSON without guessing.',
-    summary: 'Unexpected token errors are parser clues. The token is where parsing failed, not always where the original mistake started.',
+    title: 'Unexpected Token in JSON at Position 0: Causes and Fixes',
+    description: 'Fix unexpected token in JSON at position 0 by checking empty responses, HTML error pages, BOM characters, and non-JSON text before calling JSON.parse.',
+    summary: 'Unexpected token in JSON at position 0 usually means the parser received an empty body, HTML, a hidden character, or other non-JSON text.',
     primaryKeyword: 'unexpected token in JSON',
     invalidCode: `{
   "name": "Ada"
@@ -67,7 +67,7 @@ export const GUIDE_PAGES = [
 }`,
     sections: [
       section('What "unexpected token" means', [
-        'An unexpected token error means the JSON parser reached a character that cannot legally appear at that position. The token might be a quote, brace, bracket, comma, letter, or the end of the input. The important detail is position: the parser is telling you where its expectations stopped matching the text.',
+        'Unexpected token in JSON at position 0 usually means the parser received a character or body that is not a complete JSON value. Common causes include an empty response, an HTML page that starts with `<`, a byte-order mark (BOM), or plain text returned where JSON was expected.',
         'This article is for developers debugging copied API responses, log payloads, or configuration data. Instead of guessing, start at the reported line and column, then inspect the line immediately before it. Many unexpected token errors are caused by a missing comma, an extra comma, a missing quote, or a bracket that closes too early.',
       ]),
       section('The token is often only the symptom', [
@@ -83,6 +83,11 @@ export const GUIDE_PAGES = [
         'When the JSON becomes valid, format it. A formatted document makes the next syntax issue easier to spot because indentation exposes object and array boundaries.',
       ]),
     ],
+    relatedGuideSlugs: [
+      'unexpected-token-less-than-in-json',
+      'empty-response-json-parse-error',
+      'json-parse-error',
+    ],
     faq: [
       ['What is an unexpected token in JSON?', 'It is a character the parser did not expect at that location according to strict JSON syntax.'],
       ['Is the highlighted token always the real mistake?', 'Not always. It is where parsing failed. The real mistake is often just before that position.'],
@@ -91,9 +96,9 @@ export const GUIDE_PAGES = [
   }),
   guide({
     slug: 'single-quotes-in-json',
-    title: 'Single Quotes in JSON: Why They Are Invalid',
-    description: 'JSON strings and property names must use double quotes. See invalid and fixed examples for single-quote JSON errors.',
-    summary: 'Single quotes are common in JavaScript, Python, and examples online, but strict JSON requires double quotes.',
+    title: 'Single Quotes in JSON: Can JSON Use Single Quotes?',
+    description: 'Fix single quotes in JSON by replacing invalid delimiters with double quotes and checking whether the source is JavaScript, JSON5, or strict JSON.',
+    summary: 'Single quotes in JSON are invalid in the strict format. Replace delimiters with double quotes, then validate the complete document.',
     primaryKeyword: 'single quotes in JSON',
     invalidCode: `{
   'name': 'Ada',
@@ -105,7 +110,7 @@ export const GUIDE_PAGES = [
 }`,
     sections: [
       section('The short answer', [
-        'Single quotes are not valid string delimiters in standard JSON. Property names and string values must be wrapped in double quotes. If you paste `{\'name\': \'Ada\'}` into a strict JSON parser, it fails even though a JavaScript console may accept something similar as an object literal.',
+        'Single quotes in JSON are invalid string delimiters in the strict format. Property names and string values must be wrapped in double quotes. If you paste `{\'name\': \'Ada\'}` into a strict JSON parser, it fails even though a JavaScript console may accept something similar as an object literal.',
         'This article is for developers who copied data from JavaScript, Python, documentation, or a log and need to turn it into valid JSON. The fix is to replace single quotes around keys and string values with double quotes, while preserving apostrophes inside string values by escaping them only when needed.',
       ]),
       section('JSON is not a JavaScript object literal', [
@@ -120,6 +125,11 @@ export const GUIDE_PAGES = [
         'When JSONFmt detects a single quote outside a valid string, it classifies the error as a single-quote issue. The diagnostic panel explains that strict JSON strings must use double quotes and gives a direct repair instruction. The tool does not send your JSON to a server and does not rewrite the input automatically.',
         'After you replace the quotes and the JSON becomes valid, the Format and Minify actions become available. That gives you a second check that the document is truly parseable strict JSON.',
       ]),
+    ],
+    relatedGuideSlugs: [
+      'strict-json-vs-json5',
+      'unquoted-property-name-in-json',
+      'expected-double-quoted-property-name',
     ],
     faq: [
       ['Can JSON use single quotes?', 'No. JSON keys and string values must use double quotes.'],
@@ -1751,7 +1761,11 @@ function renderFaq(faq) {
 
 function renderRelatedLinks(page) {
   const relatedTools = TOOL_PAGES.filter((toolPage) => toolPage.path !== page.path).slice(0, 4)
-  const relatedGuides = GUIDE_PAGES.filter((guidePage) => guidePage.path !== page.path).slice(0, 4)
+  const relatedGuides = page.relatedGuideSlugs
+    ? page.relatedGuideSlugs
+      .map((slug) => GUIDE_PAGES.find((guidePage) => guidePage.slug === slug))
+      .filter(Boolean)
+    : GUIDE_PAGES.filter((guidePage) => guidePage.path !== page.path).slice(0, 4)
 
   return `<section class="related-links">
   <div>
