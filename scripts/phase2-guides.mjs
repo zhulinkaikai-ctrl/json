@@ -473,6 +473,12 @@ const data = JSON.parse(raw)`,
       title: 'Unexpected Non-Whitespace Character After JSON: Fix Extra Data',
       description: 'Fix unexpected non-whitespace character after JSON errors by removing logs, concatenated values, or extra text after the first JSON document.',
       summary: 'Unexpected non-whitespace character after JSON means the parser finished one value and found extra data after it.',
+      searchAnswer: 'The parser finished one valid JSON value and then found extra non-whitespace text. Remove the second value, log prefix, or trailing response data.',
+      fixSteps: [
+        'Find the first complete object, array, string, number, boolean, or null value.',
+        'Remove logs, concatenated JSON, HTML, or other characters after that value.',
+        'If multiple JSON values are intentional, parse a documented stream format instead of one JSON document.',
+      ],
       primaryKeyword: 'Unexpected non-whitespace character after JSON',
       invalidCode: `{"status":"ok"}{"next":true}`,
       fixedCode: `{

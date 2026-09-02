@@ -1130,6 +1130,40 @@ h1 {
   line-height: 1.78;
 }
 
+.article-answer {
+  max-width: 820px;
+  margin: 26px 0 28px;
+  padding: 18px 20px 20px;
+  border: 1px solid #83d1c2;
+  border-left: 4px solid #159b83;
+  border-radius: 6px;
+  background: #f1faf7;
+}
+
+.article-answer .eyebrow {
+  margin: 0 0 8px;
+  color: #137c6a;
+}
+
+.article-answer p {
+  margin: 0;
+  color: #24453c;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.article-answer ol {
+  margin: 14px 0 0;
+  padding-left: 22px;
+  color: #3f544d;
+}
+
+.article-answer li {
+  padding-left: 4px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
 .article-shell code {
   padding: 1px 5px;
   border-radius: 4px;

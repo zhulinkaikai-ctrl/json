@@ -56,6 +56,12 @@ export const GUIDE_PAGES = [
     title: 'Unexpected Token in JSON at Position 0: Causes and Fixes',
     description: 'Fix unexpected token in JSON at position 0 by checking empty responses, HTML error pages, BOM characters, and non-JSON text before calling JSON.parse.',
     summary: 'Unexpected token in JSON at position 0 usually means the parser received an empty body, HTML, a hidden character, or other non-JSON text.',
+    searchAnswer: 'At position 0, JSON.parse failed on the first character. Check whether the input is empty, HTML, a BOM-prefixed body, or plain text instead of JSON.',
+    fixSteps: [
+      'Inspect the raw response body and status before calling response.json().',
+      'If the body starts with <, fix the route, redirect, login page, or server error response.',
+      'If the body is JSON, validate it and repair the first syntax error before parsing again.',
+    ],
     primaryKeyword: 'unexpected token in JSON',
     invalidCode: `{
   "name": "Ada"
@@ -99,6 +105,12 @@ export const GUIDE_PAGES = [
     title: 'Single Quotes in JSON: Can JSON Use Single Quotes?',
     description: 'Fix single quotes in JSON by replacing invalid delimiters with double quotes and checking whether the source is JavaScript, JSON5, or strict JSON.',
     summary: 'Single quotes in JSON are invalid in the strict format. Replace delimiters with double quotes, then validate the complete document.',
+    searchAnswer: 'Strict JSON does not allow single quotes around keys or string values. Replace those delimiters with double quotes, then validate the complete document.',
+    fixSteps: [
+      'Change JSON keys and string delimiters from single quotes to double quotes.',
+      'Keep apostrophes inside double-quoted values unless they are syntax delimiters.',
+      'Validate again because copied JavaScript objects may also contain comments or trailing commas.',
+    ],
     primaryKeyword: 'single quotes in JSON',
     invalidCode: `{
   'name': 'Ada',
@@ -1483,6 +1495,9 @@ function renderStaticBody(page) {
 
 function renderHomePage() {
   const featuredGuides = [
+    'unexpected-token-in-json',
+    'single-quotes-in-json',
+    'unexpected-non-whitespace-character-after-json',
     'unexpected-token-less-than-in-json',
     'json-parse-unexpected-token-o',
     'json-parse-unexpected-token-u',
@@ -1674,6 +1689,13 @@ function renderGuidePage(page) {
   <h1>${escapeHtml(page.title)}</h1>
   <p class="article-updated">${escapeHtml(contentUpdatedLabel)}</p>
   <p class="static-lead">${escapeHtml(page.summary)}</p>
+  ${page.searchAnswer ? `<section class="article-answer" aria-label="Quick answer">
+    <p class="eyebrow">Quick answer</p>
+    <p>${escapeInlineCode(page.searchAnswer)}</p>
+    ${page.fixSteps?.length ? `<ol>
+      ${page.fixSteps.map((step) => `<li>${escapeInlineCode(step)}</li>`).join('\n      ')}
+    </ol>` : ''}
+  </section>` : ''}
   <div class="article-cta top"><a href="/json-error-finder/">Try it in JSON Error Finder</a></div>
   <nav class="article-toc" aria-label="Article sections">
     <strong>On this page</strong>

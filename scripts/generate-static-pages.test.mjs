@@ -96,6 +96,12 @@ describe('V3 static page registry', () => {
         title: 'Unexpected Token in JSON at Position 0: Causes and Fixes',
         description: 'Fix unexpected token in JSON at position 0 by checking empty responses, HTML error pages, BOM characters, and non-JSON text before calling JSON.parse.',
         summary: 'Unexpected token in JSON at position 0 usually means the parser received an empty body, HTML, a hidden character, or other non-JSON text.',
+        searchAnswer: 'At position 0, JSON.parse failed on the first character. Check whether the input is empty, HTML, a BOM-prefixed body, or plain text instead of JSON.',
+        fixSteps: [
+          'Inspect the raw response body and status before calling response.json().',
+          'If the body starts with <, fix the route, redirect, login page, or server error response.',
+          'If the body is JSON, validate it and repair the first syntax error before parsing again.',
+        ],
         relatedGuideSlugs: [
           'unexpected-token-less-than-in-json',
           'empty-response-json-parse-error',
@@ -106,6 +112,12 @@ describe('V3 static page registry', () => {
         title: 'Single Quotes in JSON: Can JSON Use Single Quotes?',
         description: 'Fix single quotes in JSON by replacing invalid delimiters with double quotes and checking whether the source is JavaScript, JSON5, or strict JSON.',
         summary: 'Single quotes in JSON are invalid in the strict format. Replace delimiters with double quotes, then validate the complete document.',
+        searchAnswer: 'Strict JSON does not allow single quotes around keys or string values. Replace those delimiters with double quotes, then validate the complete document.',
+        fixSteps: [
+          'Change JSON keys and string delimiters from single quotes to double quotes.',
+          'Keep apostrophes inside double-quoted values unless they are syntax delimiters.',
+          'Validate again because copied JavaScript objects may also contain comments or trailing commas.',
+        ],
         relatedGuideSlugs: [
           'strict-json-vs-json5',
           'unquoted-property-name-in-json',
@@ -116,6 +128,12 @@ describe('V3 static page registry', () => {
         title: 'Unexpected Non-Whitespace Character After JSON: Fix Extra Data',
         description: 'Fix unexpected non-whitespace character after JSON errors by removing logs, concatenated values, or extra text after the first JSON document.',
         summary: 'Unexpected non-whitespace character after JSON means the parser finished one value and found extra data after it.',
+        searchAnswer: 'The parser finished one valid JSON value and then found extra non-whitespace text. Remove the second value, log prefix, or trailing response data.',
+        fixSteps: [
+          'Find the first complete object, array, string, number, boolean, or null value.',
+          'Remove logs, concatenated JSON, HTML, or other characters after that value.',
+          'If multiple JSON values are intentional, parse a documented stream format instead of one JSON document.',
+        ],
         relatedGuideSlugs: [
           'extra-data-after-json',
           'body-stream-already-read-json',
@@ -132,6 +150,8 @@ describe('V3 static page registry', () => {
       expect(page.sections[0].paragraphs[0].toLowerCase(), slug).toContain(
         expected.title.split(':')[0].toLowerCase(),
       )
+      expect(page.searchAnswer, slug).toBe(expected.searchAnswer)
+      expect(page.fixSteps, slug).toEqual(expected.fixSteps)
     }
 
     const unexpectedTokenHtml = renderStaticPage(
@@ -147,6 +167,10 @@ describe('V3 static page registry', () => {
     expect(unexpectedTokenHtml).toContain('href="/guides/unexpected-token-less-than-in-json/"')
     expect(singleQuotesHtml).toContain('href="/guides/strict-json-vs-json5/"')
     expect(extraDataHtml).toContain('href="/guides/extra-data-after-json/"')
+    expect(unexpectedTokenHtml).toContain('At position 0, JSON.parse failed on the first character.')
+    expect(unexpectedTokenHtml).toContain('Inspect the raw response body and status before calling response.json().')
+    expect(singleQuotesHtml).toContain('Strict JSON does not allow single quotes around keys or string values.')
+    expect(extraDataHtml).toContain('The parser finished one valid JSON value and then found extra non-whitespace text.')
   })
 
   it('renders the homepage as a crawlable editor-first entry page', () => {
@@ -160,6 +184,9 @@ describe('V3 static page registry', () => {
     expect(html).toContain('Format, validate, minify, and repair strict JSON locally in your browser')
     expect(html).toContain('href="/json-formatter/"')
     expect(html).toContain('href="/json-validator/"')
+    expect(html).toContain('href="/guides/unexpected-token-in-json/"')
+    expect(html).toContain('href="/guides/single-quotes-in-json/"')
+    expect(html).toContain('href="/guides/unexpected-non-whitespace-character-after-json/"')
     expect(html).toContain('href="/guides/unexpected-token-less-than-in-json/"')
     expect(html).toContain('<script type="module" crossorigin src="/assets/index-test.js"></script>')
   })
