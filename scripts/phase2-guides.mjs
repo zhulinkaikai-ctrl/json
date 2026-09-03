@@ -29,6 +29,15 @@ export function createPhase2Guides(guide, section) {
       description: 'Fix JSON.parse unexpected token o errors by checking whether an object was parsed again or converted to [object Object] before parsing.',
       summary: 'JSON.parse unexpected token o usually means the parser received [object Object] or a value that was already parsed.',
       primaryKeyword: 'JSON.parse unexpected token o',
+      relatedGuideSlugs: [
+        'unexpected-token-object-object-in-json',
+        'json-parse-error',
+      ],
+      relatedToolSlugs: [
+        'json-error-finder',
+        'json-validator',
+        'fix-invalid-json',
+      ],
       invalidCode: `[object Object]`,
       fixedCode: `{
   "status": "ok",
@@ -65,6 +74,16 @@ export function createPhase2Guides(guide, section) {
       description: 'Fix JSON.parse unexpected token u errors by finding undefined values, empty storage entries, or responses that are not JSON strings.',
       summary: 'JSON.parse unexpected token u usually means `JSON.parse` received `undefined` or text that starts with the letter `u` instead of JSON.',
       primaryKeyword: 'JSON.parse unexpected token u',
+      relatedGuideSlugs: [
+        'unexpected-token-undefined-in-json',
+        'empty-response-json-parse-error',
+        'json-parse-error',
+      ],
+      relatedToolSlugs: [
+        'json-error-finder',
+        'json-validator',
+        'fix-invalid-json',
+      ],
       invalidCode: `undefined`,
       fixedCode: `{
   "enabled": true
@@ -404,6 +423,15 @@ export function createPhase2Guides(guide, section) {
       description: 'Fix response.json is not a function errors by checking whether your code has a Fetch Response, parsed data, or a custom client result.',
       summary: 'response.json is not a function means the value named `response` is not a Fetch Response object with a `.json()` method.',
       primaryKeyword: 'response.json is not a function',
+      relatedGuideSlugs: [
+        'unexpected-token-less-than-in-json',
+        'content-type-text-html-json-error',
+        'body-stream-already-read-json',
+      ],
+      relatedToolSlugs: [
+        'json-error-finder',
+        'json-validator',
+      ],
       invalidCode: `const response = { status: "ok" }
 await response.json()`,
       fixedCode: `const response = await fetch("/api/status")
@@ -507,6 +535,11 @@ const data = JSON.parse(raw)`,
         'extra-data-after-json',
         'body-stream-already-read-json',
         'truncated-json-response',
+      ],
+      relatedToolSlugs: [
+        'json-error-finder',
+        'json-validator',
+        'fix-invalid-json',
       ],
       faq: [
         ['Can a JSON file contain two objects back to back?', 'No. Strict JSON has exactly one top-level value. Use an array or process records line by line if needed.'],

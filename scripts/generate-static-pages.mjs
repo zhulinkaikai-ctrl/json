@@ -9,8 +9,8 @@ export const SITE_NAME = 'JSONFmt'
 export const CONTACT_EMAIL = 'zhulinkaikai@gmail.com'
 const CLOUDFLARE_WEB_ANALYTICS_TOKEN = '1247ce6193f744b0b365cd24ef117245'
 
-const today = '2026-08-11'
-const contentUpdatedLabel = 'Updated August 12, 2026'
+const today = '2026-09-03'
+const contentUpdatedLabel = 'Updated September 3, 2026'
 
 export const GUIDE_PAGES = [
   guide({
@@ -94,6 +94,11 @@ export const GUIDE_PAGES = [
       'empty-response-json-parse-error',
       'json-parse-error',
     ],
+    relatedToolSlugs: [
+      'json-error-finder',
+      'json-validator',
+      'fix-invalid-json',
+    ],
     faq: [
       ['What is an unexpected token in JSON?', 'It is a character the parser did not expect at that location according to strict JSON syntax.'],
       ['Is the highlighted token always the real mistake?', 'Not always. It is where parsing failed. The real mistake is often just before that position.'],
@@ -142,6 +147,11 @@ export const GUIDE_PAGES = [
       'strict-json-vs-json5',
       'unquoted-property-name-in-json',
       'expected-double-quoted-property-name',
+    ],
+    relatedToolSlugs: [
+      'json-validator',
+      'fix-invalid-json',
+      'json-error-finder',
     ],
     faq: [
       ['Can JSON use single quotes?', 'No. JSON keys and string values must use double quotes.'],
@@ -599,6 +609,22 @@ Second line",
     title: 'JSON Parse Error: How to Diagnose Invalid JSON',
     description: 'Understand JSON parse error messages, find the first syntax issue, and repair invalid JSON with line, column, and context checks.',
     summary: 'A JSON parse error means a parser could not read the text as one complete strict JSON value.',
+    searchAnswer: 'A JSON parse error means the parser received text that is not one complete strict JSON value. Check the reported location, the previous character, and whether the input is really JSON.',
+    fixSteps: [
+      'Check the reported line and column, then inspect the previous meaningful character.',
+      'Look for missing commas, extra commas, missing quotes, comments, unquoted keys, or incomplete brackets.',
+      'If the input came from an API, inspect the raw body, status, and content type before editing it.',
+    ],
+    relatedGuideSlugs: [
+      'unexpected-token-in-json',
+      'unexpected-token-less-than-in-json',
+      'unexpected-end-of-json-input',
+    ],
+    relatedToolSlugs: [
+      'json-error-finder',
+      'json-validator',
+      'fix-invalid-json',
+    ],
     primaryKeyword: 'JSON parse error',
     invalidCode: `{
   "status": "ok",
@@ -776,6 +802,11 @@ export const TOOL_PAGES = [
     summary: 'Use this JSON formatter to paste valid JSON, create a readable structure, and keep the entire workflow in your browser.',
     primaryKeyword: 'json formatter',
     action: 'Format JSON',
+    relatedGuideSlugs: [
+      'how-to-format-json',
+      'json-formatter-vs-validator',
+      'trailing-comma-in-json',
+    ],
     sections: [
       section('Format JSON without leaving your browser', [
         'JSONFmt formats strict valid JSON locally so you can inspect nested objects and arrays without uploading API payloads, configuration files, or logs.',
@@ -805,6 +836,12 @@ export const TOOL_PAGES = [
     summary: 'Use this JSON validator to check whether JSON is valid, locate the first syntax error, and get a clear explanation before sending data anywhere.',
     primaryKeyword: 'json validator',
     action: 'Validate JSON',
+    relatedGuideSlugs: [
+      'json-parse-error',
+      'unexpected-token-in-json',
+      'expected-double-quoted-property-name',
+      'single-quotes-in-json',
+    ],
     sections: [
       section('Check strict JSON syntax', [
         'JSONFmt validates standard JSON syntax and flags common issues such as missing commas, trailing commas, comments, single quotes, and unclosed strings.',
@@ -834,6 +871,11 @@ export const TOOL_PAGES = [
     summary: 'Use this JSON minifier to compact valid JSON by removing indentation and unnecessary whitespace while preserving the exact parsed data.',
     primaryKeyword: 'json minifier',
     action: 'Minify JSON',
+    relatedGuideSlugs: [
+      'how-to-minify-json',
+      'unexpected-end-of-json-input',
+      'json-formatter-vs-validator',
+    ],
     sections: [
       section('Make valid JSON compact', [
         'JSONFmt minifies parseable JSON by removing whitespace outside string values. The output represents the same keys, values, arrays, and objects.',
@@ -921,6 +963,12 @@ export const TOOL_PAGES = [
     summary: 'Use this JSON error finder to locate the first strict JSON syntax error, understand why it happened, and repair the text without sending it to a server.',
     primaryKeyword: 'json error finder',
     action: 'Find JSON errors',
+    relatedGuideSlugs: [
+      'json-parse-error',
+      'unexpected-token-in-json',
+      'unexpected-token-less-than-in-json',
+      'unexpected-end-of-json-input',
+    ],
     sections: [
       section('Find the first blocking syntax error', [
         'JSONFmt points to the line and column where strict JSON parsing stopped and pairs the location with nearby context.',
@@ -950,6 +998,12 @@ export const TOOL_PAGES = [
     summary: 'Fix invalid JSON by diagnosing the blocking parser error and making the smallest correct repair.',
     primaryKeyword: 'fix invalid json',
     action: 'Diagnose JSON',
+    relatedGuideSlugs: [
+      'json-parse-error',
+      'single-quotes-in-json',
+      'missing-comma-in-json',
+      'unquoted-property-name-in-json',
+    ],
     sections: [
       section('Start with the reported location', [
         'When JSON is invalid, the displayed line and column show where the parser could no longer continue. The real cause is often on that line or immediately before it.',
@@ -1089,8 +1143,8 @@ export const GUIDES_INDEX = {
   kind: 'guides-index',
   path: '/guides/',
   canonical: `${SITE_URL}/guides/`,
-  title: 'JSON Error Guides - Fix Common JSON Syntax Errors',
-  description: 'Developer-focused guides for fixing trailing commas, unexpected tokens, single quotes, unquoted keys, unclosed strings, and comments in JSON.',
+  title: 'JSON Error Guides - Fix JSON Parse and Syntax Errors',
+  description: 'Developer-focused guides for fixing JSON parse errors, unexpected tokens, missing commas, quotes, brackets, comments, and invalid API responses.',
 }
 
 export const GUIDE_GROUPS = [
@@ -1782,7 +1836,11 @@ function renderFaq(faq) {
 }
 
 function renderRelatedLinks(page) {
-  const relatedTools = TOOL_PAGES.filter((toolPage) => toolPage.path !== page.path).slice(0, 4)
+  const relatedTools = page.relatedToolSlugs
+    ? page.relatedToolSlugs
+      .map((slug) => TOOL_PAGES.find((toolPage) => toolPage.slug === slug))
+      .filter((toolPage) => toolPage && toolPage.path !== page.path)
+    : TOOL_PAGES.filter((toolPage) => toolPage.path !== page.path).slice(0, 4)
   const relatedGuides = page.relatedGuideSlugs
     ? page.relatedGuideSlugs
       .map((slug) => GUIDE_PAGES.find((guidePage) => guidePage.slug === slug))

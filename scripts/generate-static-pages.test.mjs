@@ -139,6 +139,32 @@ describe('V3 static page registry', () => {
           'body-stream-already-read-json',
           'truncated-json-response',
         ],
+        relatedToolSlugs: [
+          'json-error-finder',
+          'json-validator',
+          'fix-invalid-json',
+        ],
+      },
+      'json-parse-error': {
+        title: 'JSON Parse Error: How to Diagnose Invalid JSON',
+        description: 'Understand JSON parse error messages, find the first syntax issue, and repair invalid JSON with line, column, and context checks.',
+        summary: 'A JSON parse error means a parser could not read the text as one complete strict JSON value.',
+        searchAnswer: 'A JSON parse error means the parser received text that is not one complete strict JSON value. Check the reported location, the previous character, and whether the input is really JSON.',
+        fixSteps: [
+          'Check the reported line and column, then inspect the previous meaningful character.',
+          'Look for missing commas, extra commas, missing quotes, comments, unquoted keys, or incomplete brackets.',
+          'If the input came from an API, inspect the raw body, status, and content type before editing it.',
+        ],
+        relatedGuideSlugs: [
+          'unexpected-token-in-json',
+          'unexpected-token-less-than-in-json',
+          'unexpected-end-of-json-input',
+        ],
+        relatedToolSlugs: [
+          'json-error-finder',
+          'json-validator',
+          'fix-invalid-json',
+        ],
       },
     }
 
@@ -171,6 +197,7 @@ describe('V3 static page registry', () => {
     expect(unexpectedTokenHtml).toContain('Inspect the raw response body and status before calling response.json().')
     expect(singleQuotesHtml).toContain('Strict JSON does not allow single quotes around keys or string values.')
     expect(extraDataHtml).toContain('The parser finished one valid JSON value and then found extra non-whitespace text.')
+    expect(renderStaticPage(GUIDE_PAGES.find((page) => page.slug === 'json-parse-error'))).toContain('href="/json-error-finder/"')
   })
 
   it('renders the homepage as a crawlable editor-first entry page', () => {
@@ -204,7 +231,7 @@ describe('V3 static page registry', () => {
 
     expect(html).toContain('"@type":"Article"')
     expect(html).toContain('"@type":"FAQPage"')
-    expect(html).toContain('Updated August 12, 2026')
+    expect(html).toContain('Updated September 3, 2026')
     expect(html).toContain('Try it in JSON Error Finder')
     expect(html).not.toContain('adsbygoogle')
     expect(html).not.toContain('pagead2.googlesyndication.com')

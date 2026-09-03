@@ -1,6 +1,6 @@
 # JSONFmt SEO Keyword Map
 
-Updated: 2026-08-12
+Updated: 2026-09-03
 
 This map keeps each indexable page focused on one primary keyword so JSONFmt can build topical authority without pages competing against each other.
 
