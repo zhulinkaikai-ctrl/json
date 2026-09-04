@@ -8,6 +8,7 @@ import {
   GUIDES_INDEX,
   GUIDE_PAGES,
   HOME_PAGE,
+  PRIORITY_GUIDE_SLUGS,
   PAGE_ROUTES,
   SITE_URL,
   TOOL_PAGES,
@@ -231,7 +232,7 @@ describe('V3 static page registry', () => {
 
     expect(html).toContain('"@type":"Article"')
     expect(html).toContain('"@type":"FAQPage"')
-    expect(html).toContain('Updated September 3, 2026')
+    expect(html).toContain('Updated September 4, 2026')
     expect(html).toContain('Try it in JSON Error Finder')
     expect(html).not.toContain('adsbygoogle')
     expect(html).not.toContain('pagead2.googlesyndication.com')
@@ -313,6 +314,52 @@ describe('V3 static page registry', () => {
     expect(html).toContain('Safety and format choices')
     expect(html).toContain('Runtime and serialization errors')
     expect(html).toContain('href="/guides/is-online-json-formatter-safe/"')
+  })
+
+  it('surfaces Search Console priority guides from the homepage and guide hub', () => {
+    expect(PRIORITY_GUIDE_SLUGS).toEqual([
+      'unexpected-token-in-json',
+      'json-parse-error',
+      'single-quotes-in-json',
+      'unexpected-non-whitespace-character-after-json',
+      'response-json-is-not-a-function',
+    ])
+
+    const homeHtml = renderStaticPage(HOME_PAGE)
+    const guidesHtml = renderStaticPage(GUIDES_INDEX)
+
+    expect(homeHtml).toContain('Search Console priority fixes')
+    expect(guidesHtml).toContain('Search Console priority fixes')
+
+    for (const slug of PRIORITY_GUIDE_SLUGS) {
+      expect(homeHtml).toContain(`href="/guides/${slug}/"`)
+      expect(guidesHtml).toContain(`href="/guides/${slug}/"`)
+    }
+  })
+
+  it('renders a quick repair path and same-cluster links on every guide', () => {
+    for (const page of GUIDE_PAGES) {
+      const html = renderStaticPage(page)
+
+      expect(html, page.slug).toContain('class="article-fix-path"')
+      expect(html, page.slug).toContain('Fast repair path')
+      expect(html, page.slug).toContain('href="/json-error-finder/"')
+      expect(html, page.slug).toContain('href="/json-validator/"')
+      expect(html, page.slug).toContain('class="cluster-links"')
+      expect(html, page.slug).toContain('More in this error cluster')
+    }
+  })
+
+  it('connects high-intent tool pages back to matching error clusters', () => {
+    const validatorHtml = renderStaticPage(TOOL_PAGES.find((page) => page.slug === 'json-validator'))
+    const errorFinderHtml = renderStaticPage(TOOL_PAGES.find((page) => page.slug === 'json-error-finder'))
+
+    expect(validatorHtml).toContain('Common JSON errors')
+    expect(validatorHtml).toContain('href="/guides/json-parse-error/"')
+    expect(validatorHtml).toContain('href="/guides/single-quotes-in-json/"')
+    expect(errorFinderHtml).toContain('Common JSON errors')
+    expect(errorFinderHtml).toContain('href="/guides/unexpected-token-in-json/"')
+    expect(errorFinderHtml).toContain('href="/guides/unexpected-token-less-than-in-json/"')
   })
 
   it('keeps Phase 2 guides within the long-tail quality contract', () => {

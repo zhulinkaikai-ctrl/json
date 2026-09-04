@@ -9,8 +9,8 @@ export const SITE_NAME = 'JSONFmt'
 export const CONTACT_EMAIL = 'zhulinkaikai@gmail.com'
 const CLOUDFLARE_WEB_ANALYTICS_TOKEN = '1247ce6193f744b0b365cd24ef117245'
 
-const today = '2026-09-03'
-const contentUpdatedLabel = 'Updated September 3, 2026'
+const today = '2026-09-04'
+const contentUpdatedLabel = 'Updated September 4, 2026'
 
 export const GUIDE_PAGES = [
   guide({
@@ -792,6 +792,14 @@ Second line",
 )
 
 GUIDE_PAGES.push(...createPhase2Guides(guide, section))
+
+export const PRIORITY_GUIDE_SLUGS = [
+  'unexpected-token-in-json',
+  'json-parse-error',
+  'single-quotes-in-json',
+  'unexpected-non-whitespace-character-after-json',
+  'response-json-is-not-a-function',
+]
 
 export const TOOL_PAGES = [
   tool({
@@ -1635,6 +1643,8 @@ function renderHomePage() {
       </div>
     </section>
 
+    ${renderPriorityGuides()}
+
     <section class="tool-entry-band" aria-labelledby="tools-title">
       <div>
         <p class="eyebrow">JSON tools</p>
@@ -1717,6 +1727,7 @@ function renderGuidesIndex() {
   <h1>Fix common JSON syntax errors.</h1>
   <p class="static-lead">Practical explanations for parser errors, formatting workflows, and safe browser-local JSON handling.</p>
 </section>
+${renderPriorityGuides()}
 ${GUIDE_GROUPS.map((group) => {
   const groupPages = group.slugs.map((slug) => GUIDE_PAGES.find((guidePage) => guidePage.slug === slug)).filter(Boolean)
 
@@ -1750,6 +1761,7 @@ function renderGuidePage(page) {
       ${page.fixSteps.map((step) => `<li>${escapeInlineCode(step)}</li>`).join('\n      ')}
     </ol>` : ''}
   </section>` : ''}
+  ${renderGuideFixPath(page)}
   <div class="article-cta top"><a href="/json-error-finder/">Try it in JSON Error Finder</a></div>
   <nav class="article-toc" aria-label="Article sections">
     <strong>On this page</strong>
@@ -1772,6 +1784,7 @@ function renderGuidePage(page) {
   ${renderFaq(page.faq)}
   ${renderAdPlaceholder('Reserved end-of-article placement')}
   ${renderRelatedLinks(page)}
+  ${renderGuideClusterLinks(page)}
   <div class="article-cta"><a href="/json-error-finder/">Try it in JSON Error Finder</a></div>
 </article>`
 }
@@ -1800,6 +1813,7 @@ function renderToolPage(page) {
     </aside>
   </section>
   <article class="article-shell tool-copy">
+    ${renderToolErrorCluster(page)}
     ${page.sections.map(renderArticleSection).join('\n')}
     ${renderFaq(page.faq)}
     ${renderRelatedLinks(page)}
@@ -1855,6 +1869,97 @@ function renderRelatedLinks(page) {
   <div>
     <p class="eyebrow">Related guides</p>
     ${relatedGuides.map((guidePage) => `<a href="${guidePage.path}">${escapeHtml(guidePage.title)}</a>`).join('\n    ')}
+  </div>
+</section>`
+}
+
+function renderPriorityGuides() {
+  const priorityGuides = PRIORITY_GUIDE_SLUGS
+    .map((slug) => GUIDE_PAGES.find((guidePage) => guidePage.slug === slug))
+    .filter(Boolean)
+
+  return `<section class="priority-guides" aria-labelledby="priority-guides-title">
+  <div class="priority-guides-heading">
+    <p class="eyebrow">Search Console priority fixes</p>
+    <h2 id="priority-guides-title">Start with pages already getting impressions.</h2>
+    <p>These guides target the error searches that are already appearing in Search Console. Open one, follow the repair path, then validate the fixed JSON.</p>
+  </div>
+  <div class="priority-guide-list">
+    ${priorityGuides.map((guidePage) => `<a class="priority-guide-card" href="${guidePage.path}">
+      <strong>${escapeHtml(guidePage.title)}</strong>
+      <span>${escapeHtml(guidePage.summary)}</span>
+    </a>`).join('\n    ')}
+  </div>
+</section>`
+}
+
+function renderGuideFixPath(page) {
+  const steps = page.fixSteps?.length
+    ? page.fixSteps
+    : [
+      'Read the parser message and go to the reported line and column.',
+      'Check the highlighted character and the previous meaningful character for the smallest syntax mistake.',
+      'Validate the complete document, then format it to confirm the repaired structure.',
+    ]
+
+  return `<section class="article-fix-path" aria-labelledby="fix-path-title">
+  <div>
+    <p class="eyebrow">Fast repair path</p>
+    <h2 id="fix-path-title">Make the smallest correct edit.</h2>
+    <p>Repair the first blocking syntax error before changing the rest of the payload.</p>
+  </div>
+  <ol>
+    ${steps.map((step) => `<li>${escapeInlineCode(step)}</li>`).join('\n    ')}
+  </ol>
+  <div class="fix-path-actions">
+    <a href="/json-error-finder/">Diagnose in JSON Error Finder</a>
+    <a href="/json-validator/">Validate fixed JSON</a>
+  </div>
+</section>`
+}
+
+function renderGuideClusterLinks(page) {
+  const group = GUIDE_GROUPS.find((guideGroup) => guideGroup.slugs.includes(page.slug))
+  if (!group) return ''
+
+  const clusterGuides = group.slugs
+    .map((slug) => GUIDE_PAGES.find((guidePage) => guidePage.slug === slug))
+    .filter((guidePage) => guidePage && guidePage.path !== page.path)
+    .slice(0, 6)
+
+  return `<section class="cluster-links" aria-labelledby="cluster-links-title">
+  <div>
+    <p class="eyebrow">Same search intent</p>
+    <h2 id="cluster-links-title">More in this error cluster</h2>
+    <p>${escapeHtml(group.summary)}</p>
+  </div>
+  <div class="cluster-link-list">
+    ${clusterGuides.map((guidePage) => `<a href="${guidePage.path}">${escapeHtml(guidePage.title)}</a>`).join('\n    ')}
+  </div>
+</section>`
+}
+
+function renderToolErrorCluster(page) {
+  const guideSlugs = page.relatedGuideSlugs?.length
+    ? page.relatedGuideSlugs
+    : [
+      'json-parse-error',
+      'unexpected-token-in-json',
+      'trailing-comma-in-json',
+      'single-quotes-in-json',
+    ]
+  const clusterGuides = guideSlugs
+    .map((slug) => GUIDE_PAGES.find((guidePage) => guidePage.slug === slug))
+    .filter(Boolean)
+
+  return `<section class="tool-error-cluster" aria-labelledby="tool-error-cluster-title">
+  <div>
+    <p class="eyebrow">Repair after diagnosis</p>
+    <h2 id="tool-error-cluster-title">Common JSON errors</h2>
+    <p>Jump from this tool to the guide that explains the parser message and the smallest practical fix.</p>
+  </div>
+  <div class="cluster-link-list">
+    ${clusterGuides.map((guidePage) => `<a href="${guidePage.path}">${escapeHtml(guidePage.title)}</a>`).join('\n    ')}
   </div>
 </section>`
 }
