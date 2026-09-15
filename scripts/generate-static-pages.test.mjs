@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -9,6 +10,8 @@ import {
   GUIDE_PAGES,
   HOME_PAGE,
   PRIORITY_GUIDE_SLUGS,
+  REFERENCE_LINKS,
+  REFERENCES_PAGE,
   PAGE_ROUTES,
   SITE_URL,
   TOOL_PAGES,
@@ -17,6 +20,7 @@ import {
   buildRobotsTxt,
   buildSitemapXml,
   renderStaticPage,
+  writeStaticPages,
 } from './generate-static-pages.mjs'
 import { PHASE2_GUIDE_SLUGS } from './phase2-guides.mjs'
 
@@ -28,7 +32,7 @@ const keywordMapPath = path.resolve(
 describe('V3 static page registry', () => {
   it('defines the expected canonical site URL and entry-page route count', () => {
     expect(SITE_URL).toBe('https://jsonfmt.org')
-    expect(PAGE_ROUTES.length).toBeGreaterThanOrEqual(53)
+    expect(PAGE_ROUTES.length).toBeGreaterThanOrEqual(54)
     expect(GUIDE_PAGES).toHaveLength(38)
     expect(TOOL_PAGES).toHaveLength(8)
     expect(TRUST_PAGES).toHaveLength(4)
@@ -212,6 +216,7 @@ describe('V3 static page registry', () => {
     expect(html).toContain('Format, validate, minify, and repair strict JSON locally in your browser')
     expect(html).toContain('href="/json-formatter/"')
     expect(html).toContain('href="/json-validator/"')
+    expect(html).toContain('href="/references/"')
     expect(html).toContain('href="/guides/unexpected-token-in-json/"')
     expect(html).toContain('href="/guides/single-quotes-in-json/"')
     expect(html).toContain('href="/guides/unexpected-non-whitespace-character-after-json/"')
@@ -232,10 +237,63 @@ describe('V3 static page registry', () => {
 
     expect(html).toContain('"@type":"Article"')
     expect(html).toContain('"@type":"FAQPage"')
-    expect(html).toContain('Updated September 4, 2026')
+    expect(html).toContain('Updated September 15, 2026')
     expect(html).toContain('Try it in JSON Error Finder')
     expect(html).not.toContain('adsbygoogle')
     expect(html).not.toContain('pagead2.googlesyndication.com')
+  })
+
+  it('publishes a crawlable primary references page for JSON standards', () => {
+    expect(REFERENCES_PAGE).toMatchObject({
+      kind: 'references',
+      path: '/references/',
+      title: 'JSON References - RFC 8259, MDN, and Fetch Documentation',
+    })
+    expect(REFERENCE_LINKS).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        href: 'https://www.rfc-editor.org/rfc/rfc8259',
+        title: 'RFC 8259: The JavaScript Object Notation (JSON) Data Interchange Format',
+      }),
+      expect.objectContaining({
+        href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse',
+      }),
+      expect.objectContaining({
+        href: 'https://developer.mozilla.org/en-US/docs/Web/API/Response/json',
+      }),
+    ]))
+
+    const html = renderStaticPage(REFERENCES_PAGE)
+
+    expect(html).toContain('<h1>JSON references for debugging and validation</h1>')
+    expect(html).toContain('href="https://www.rfc-editor.org/rfc/rfc8259"')
+    expect(html).toContain('href="https://developer.mozilla.org/en-US/docs/Web/API/Response/json"')
+    expect(html).toContain('href="/guides/json-parse-error/"')
+    expect(html).toContain('href="/json-validator/"')
+  })
+
+  it('writes the references page into the production output', async () => {
+    const outputDir = mkdtempSync(path.join(tmpdir(), 'jsonfmt-static-'))
+
+    try {
+      await writeStaticPages(outputDir)
+      expect(existsSync(path.join(outputDir, 'references', 'index.html'))).toBe(true)
+      expect(readFileSync(path.join(outputDir, 'sitemap.xml'), 'utf8')).toContain(
+        '<loc>https://jsonfmt.org/references/</loc>',
+      )
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true })
+    }
+  })
+
+  it('adds primary references to every guide without exposing JSON content', () => {
+    for (const page of GUIDE_PAGES) {
+      const html = renderStaticPage(page)
+
+      expect(html, page.slug).toContain('Primary references')
+      expect(html, page.slug).toContain('href="/references/"')
+      expect(html, page.slug).toContain('href="https://www.rfc-editor.org/rfc/rfc8259"')
+      expect(html, page.slug).not.toContain('data-json')
+    }
   })
 
   it('renders the site icon and social preview image on static pages', () => {
@@ -259,6 +317,7 @@ describe('V3 static page registry', () => {
     expect(html).toContain('"@type":"BreadcrumbList"')
     expect(html).toContain('Related JSON tools')
     expect(html).toContain('Related guides')
+    expect(html).toContain('href="/references/"')
     expect(html).toContain('href="/privacy/"')
     expect(html).toContain('href="/terms/"')
     expect(html).toContain('href="/contact/"')

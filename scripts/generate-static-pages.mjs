@@ -9,8 +9,39 @@ export const SITE_NAME = 'JSONFmt'
 export const CONTACT_EMAIL = 'zhulinkaikai@gmail.com'
 const CLOUDFLARE_WEB_ANALYTICS_TOKEN = '1247ce6193f744b0b365cd24ef117245'
 
-const today = '2026-09-04'
-const contentUpdatedLabel = 'Updated September 4, 2026'
+const today = '2026-09-15'
+const contentUpdatedLabel = 'Updated September 15, 2026'
+
+export const REFERENCE_LINKS = [
+  {
+    id: 'rfc-8259',
+    title: 'RFC 8259: The JavaScript Object Notation (JSON) Data Interchange Format',
+    href: 'https://www.rfc-editor.org/rfc/rfc8259',
+    description: 'The IETF specification for JSON grammar, values, strings, numbers, objects, arrays, and interoperability rules.',
+    topics: ['syntax', 'format', 'numbers', 'strings', 'objects', 'arrays'],
+  },
+  {
+    id: 'mdn-json-parse',
+    title: 'MDN: JSON.parse()',
+    href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse',
+    description: 'Reference documentation for converting a JSON string into a JavaScript value and handling parse failures.',
+    topics: ['syntax', 'parse', 'runtime', 'strings', 'errors'],
+  },
+  {
+    id: 'mdn-response-json',
+    title: 'MDN: Response.json()',
+    href: 'https://developer.mozilla.org/en-US/docs/Web/API/Response/json',
+    description: 'Reference documentation for reading a Fetch response body and parsing it as JSON.',
+    topics: ['fetch', 'response', 'runtime', 'api', 'content-type'],
+  },
+  {
+    id: 'mdn-json-stringify',
+    title: 'MDN: JSON.stringify()',
+    href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify',
+    description: 'Reference documentation for serializing JavaScript values into JSON strings and handling unsupported values.',
+    topics: ['serialize', 'runtime', 'numbers', 'objects', 'arrays'],
+  },
+]
 
 export const GUIDE_PAGES = [
   guide({
@@ -1155,6 +1186,14 @@ export const GUIDES_INDEX = {
   description: 'Developer-focused guides for fixing JSON parse errors, unexpected tokens, missing commas, quotes, brackets, comments, and invalid API responses.',
 }
 
+export const REFERENCES_PAGE = {
+  kind: 'references',
+  path: '/references/',
+  canonical: `${SITE_URL}/references/`,
+  title: 'JSON References - RFC 8259, MDN, and Fetch Documentation',
+  description: 'Primary JSON references for syntax, parsing, serialization, and Fetch responses, curated for practical debugging and validation.',
+}
+
 export const GUIDE_GROUPS = [
   {
     title: 'JSON syntax errors',
@@ -1221,6 +1260,7 @@ export const PAGE_ROUTES = [
   ...TOOL_PAGES,
   GUIDES_INDEX,
   ...GUIDE_PAGES,
+  REFERENCES_PAGE,
   ...TRUST_PAGES,
 ]
 
@@ -1439,7 +1479,7 @@ export async function writeStaticPages(distDir = 'dist') {
   const cssLinks = await getBuiltCssLinks(distDir)
   const scriptLinks = await getBuiltScriptLinks(distDir)
 
-  for (const page of [HOME_PAGE, TOOLS_INDEX, ...TOOL_PAGES, GUIDES_INDEX, ...GUIDE_PAGES, ...TRUST_PAGES]) {
+  for (const page of [HOME_PAGE, TOOLS_INDEX, ...TOOL_PAGES, GUIDES_INDEX, ...GUIDE_PAGES, REFERENCES_PAGE, ...TRUST_PAGES]) {
     const outputPath = path.join(distDir, page.path, 'index.html')
     await mkdir(path.dirname(outputPath), { recursive: true })
     await writeFile(
@@ -1526,6 +1566,7 @@ function renderStaticHeader() {
     <a href="/json-error-finder/">Error Finder</a>
     <a href="/tools/">Tools</a>
     <a href="/guides/">Guides</a>
+    <a href="/references/">References</a>
   </nav>
 </header>`
 }
@@ -1539,6 +1580,7 @@ function renderStaticFooter() {
     <a href="/json-validator/">Validator</a>
     <a href="/json-minifier/">Minifier</a>
     <a href="/guides/">Guides</a>
+    <a href="/references/">References</a>
     <a href="/privacy/">Privacy Policy</a>
     <a href="/terms/">Terms of Use</a>
     <a href="/contact/">Contact</a>
@@ -1552,6 +1594,7 @@ function renderStaticBody(page) {
   if (page.kind === 'tool') return renderToolPage(page)
   if (page.kind === 'guides-index') return renderGuidesIndex()
   if (page.kind === 'guide') return renderGuidePage(page)
+  if (page.kind === 'references') return renderReferencesPage()
   return renderTrustPage(page)
 }
 
@@ -1579,6 +1622,7 @@ function renderHomePage() {
         <a href="/json-error-finder/">Error Finder</a>
         <a href="/tools/">Tools</a>
         <a href="/guides/">Guides</a>
+        <a href="/references/">References</a>
       </nav>
       <div class="privacy-note"><span>Runs locally in your browser</span></div>
     </header>
@@ -1784,9 +1828,47 @@ function renderGuidePage(page) {
   ${renderFaq(page.faq)}
   ${renderAdPlaceholder('Reserved end-of-article placement')}
   ${renderRelatedLinks(page)}
+  ${renderReferenceLinks(page)}
   ${renderGuideClusterLinks(page)}
   <div class="article-cta"><a href="/json-error-finder/">Try it in JSON Error Finder</a></div>
 </article>`
+}
+
+function renderReferencesPage() {
+  return `<article class="article-shell references-page">
+  <p class="eyebrow">JSONFmt reference shelf</p>
+  <h1>JSON references for debugging and validation</h1>
+  <p class="static-lead">Use these primary references when you need to confirm what strict JSON allows, understand a parser error, or debug a Fetch response that is not the JSON you expected.</p>
+  <section class="reference-intro">
+    <p>JSONFmt explains common failures in practical terms, but the format and browser APIs have authoritative documentation elsewhere. These links point to the IETF JSON specification and Mozilla Developer Network references that define the rules behind the examples in our guides.</p>
+  </section>
+  <section class="reference-list" aria-label="Primary JSON references">
+    ${REFERENCE_LINKS.map((reference) => `<article class="reference-card">
+      <p class="eyebrow">${escapeHtml(reference.id.replaceAll('-', ' '))}</p>
+      <h2><a href="${reference.href}" rel="external noopener">${escapeHtml(reference.title)}</a></h2>
+      <p>${escapeHtml(reference.description)}</p>
+      <a class="reference-card-link" href="${reference.href}" rel="external noopener">Open primary reference</a>
+    </article>`).join('\n    ')}
+  </section>
+  ${renderReferencesRelatedContent()}
+</article>`
+}
+
+function renderReferencesRelatedContent() {
+  return `<section class="related-links">
+  <div>
+    <p class="eyebrow">Start debugging</p>
+    <a href="/guides/json-parse-error/">JSON Parse Error: How to Diagnose Invalid JSON</a>
+    <a href="/guides/unexpected-token-in-json/">Unexpected Token in JSON at Position 0: Causes and Fixes</a>
+    <a href="/json-validator/">JSON validator</a>
+  </div>
+  <div>
+    <p class="eyebrow">Privacy-first tools</p>
+    <a href="/json-error-finder/">JSON error finder</a>
+    <a href="/json-formatter/">JSON formatter</a>
+    <a href="/privacy/">Privacy Policy</a>
+  </div>
+</section>`
 }
 
 function renderToolPage(page) {
@@ -1869,6 +1951,30 @@ function renderRelatedLinks(page) {
   <div>
     <p class="eyebrow">Related guides</p>
     ${relatedGuides.map((guidePage) => `<a href="${guidePage.path}">${escapeHtml(guidePage.title)}</a>`).join('\n    ')}
+  </div>
+</section>`
+}
+
+function renderReferenceLinks(page) {
+  const text = [page.primaryKeyword, page.title, page.description, page.summary].join(' ').toLowerCase()
+  const references = REFERENCE_LINKS
+    .map((reference) => ({
+      reference,
+      score: reference.topics.reduce((score, topic) => score + (text.includes(topic) ? 1 : 0), 0),
+    }))
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 3)
+    .map(({ reference }) => reference)
+
+  return `<section class="primary-references" aria-labelledby="primary-references-title">
+  <div>
+    <p class="eyebrow">Primary references</p>
+    <h2 id="primary-references-title">Verify the rule behind this fix.</h2>
+    <p>These external references support the JSON syntax or browser API behavior discussed on this page.</p>
+  </div>
+  <div class="reference-link-list">
+    ${references.map((reference) => `<a href="${reference.href}" rel="external noopener">${escapeHtml(reference.title)}</a>`).join('\n    ')}
+    <a href="/references/">View all JSON references</a>
   </div>
 </section>`
 }
